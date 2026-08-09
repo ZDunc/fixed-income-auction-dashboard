@@ -41,10 +41,17 @@ export default function DashboardPage() {
     return (
         <Box
             sx={{
-                height: '100vh',
+                height: {
+                    xs: 'auto',
+                    lg: '100vh'
+                },
+                minHeight: '100vh',
                 display: 'flex',
                 flexDirection: 'column',
-                overflow: 'hidden',
+                overflow: {
+                    xs: 'visible',
+                    lg: 'hidden'
+                },
                 bgcolor: 'background.default'
             }}>
             <Header />
@@ -52,7 +59,6 @@ export default function DashboardPage() {
             <Box
                 component="main"
                 sx={{
-                    position: 'relative',
                     flex: 1,
                     minHeight: 0,
                     display: 'grid',
@@ -62,7 +68,10 @@ export default function DashboardPage() {
                     },
                     gap: 2,
                     p: 2,
-                    overflow: 'hidden'
+                    overflow: {
+                        xs: 'visible',
+                        lg: 'hidden'
+                    }
                 }}>
                 {/* show subtle progress while refreshing existing data */}
                 {isLoading && hasData && (
@@ -86,8 +95,14 @@ export default function DashboardPage() {
                         minHeight: 0,
                         display: 'grid',
                         gridTemplateRows: hasRefreshError
-                            ? 'auto auto minmax(0, 1fr)'
-                            : 'auto minmax(0, 1fr)',
+                            ? {
+                                xs: 'auto auto 520px',
+                                lg: 'auto auto minmax(0, 1fr)'
+                            }
+                            : {
+                                xs: 'auto 520px',
+                                lg: 'auto minmax(0, 1fr)'
+                            },
                         gap: 2
                     }}>
                     {hasInitialError ? (
@@ -121,7 +136,11 @@ export default function DashboardPage() {
                     component="aside"
                     sx={{
                         minWidth: 0,
-                        minHeight: 0
+                        minHeight: 0,
+                        display: {
+                            xs: 'none',
+                            lg: 'block'
+                        }
                     }}>
                     <AuctionFilters
                         query={query}
