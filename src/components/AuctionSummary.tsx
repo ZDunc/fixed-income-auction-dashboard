@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Divider from '@mui/material/Divider';
+import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
@@ -14,8 +15,8 @@ import BarChartRounded from '@mui/icons-material/BarChartRounded';
 import CalendarMonthRounded from '@mui/icons-material/CalendarMonthRounded';
 import CheckCircleOutlineRounded from '@mui/icons-material/CheckCircleOutlineRounded';
 import EqualizerRounded from '@mui/icons-material/EqualizerRounded';
+import GavelRounded from '@mui/icons-material/GavelRounded';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
-import LayersOutlined from '@mui/icons-material/LayersOutlined';
 import PlayArrowRounded from '@mui/icons-material/PlayArrowRounded';
 import ScheduleRounded from '@mui/icons-material/ScheduleRounded';
 
@@ -27,10 +28,12 @@ import { formatCompactNumber, formatNumber, formatPrice } from '../utils/formatU
 
 interface AuctionSummaryProps {
     auctions: Auction[];
+    isLoading?: boolean;
 }
 
 export default function AuctionSummary({
-    auctions
+    auctions,
+    isLoading = false
 }: AuctionSummaryProps) {
     const theme = useTheme();
     const currentTime = useCurrentTime();
@@ -66,51 +69,62 @@ export default function AuctionSummary({
     );
 
     return (
-        <Card
-            variant="outlined"
+    <Card
+        variant="outlined"
+        sx={{
+            bgcolor: 'background.paper',
+            borderColor: 'divider',
+            borderRadius: 2,
+            overflow: 'hidden'
+        }}>
+        <CardContent
             sx={{
-                bgcolor: 'background.paper',
-                borderColor: 'divider',
-                borderRadius: 2,
-                overflow: 'hidden'
+                p: 0,
+                '&:last-child': {
+                    pb: 0
+                }
             }}>
-            <CardContent
+            {/* top KPI row */}
+            <Box
                 sx={{
-                    p: 0,
-                    '&:last-child': {
-                        pb: 0
-                    }
+                    display: 'grid',
+                    gridTemplateColumns: {
+                        xs: 'repeat(2, minmax(0, 1fr))',
+                        md: 'repeat(4, minmax(0, 1fr))'
+                    },
+                    px: 1.5,
+                    py: 1
                 }}>
-                {/* top KPI row */}
-                <Box
-                    sx={{
-                        display: 'grid',
-                        gridTemplateColumns: {
-                            xs: 'repeat(2, minmax(0, 1fr))',
-                            md: 'repeat(4, minmax(0, 1fr))'
-                        },
-                        px: 1.5,
-                        py: 1
-                    }}>
-                    <MetricSlot isLast={false}>
+                <MetricSlot isLast={false}>
+                    {isLoading ? (
+                        <MetricSkeleton />
+                    ) : (
                         <SummaryMetric
-                            icon={<LayersOutlined />}
+                            icon={<GavelRounded />}
                             label="Total Auctions"
                             value={formatNumber(stats.totalAuctions)}
                             color={theme.kpi.auctions}
                         />
-                    </MetricSlot>
+                    )}
+                </MetricSlot>
 
-                    <MetricSlot isLast={false}>
+                <MetricSlot isLast={false}>
+                    {isLoading ? (
+                        <MetricSkeleton />
+                    ) : (
                         <SummaryMetric
                             icon={<BarChartRounded />}
                             label="Total Size"
                             value={formatCompactNumber(stats.totalSize)}
                             color={theme.kpi.size}
                         />
-                    </MetricSlot>
+                    )}
+                </MetricSlot>
 
-                    <MetricSlot isLast={false}>
+                <MetricSlot isLast={false}>
+                    {isLoading ? (
+                        <MetricSkeleton />
+                    ) : (
                         <SummaryMetric
                             icon={<AttachMoneyRounded />}
                             label="Avg Price"
@@ -121,9 +135,13 @@ export default function AuctionSummary({
                             }
                             color={theme.kpi.price}
                         />
-                    </MetricSlot>
+                    )}
+                </MetricSlot>
 
-                    <MetricSlot isLast>
+                <MetricSlot isLast>
+                    {isLoading ? (
+                        <MetricSkeleton />
+                    ) : (
                         <SummaryMetric
                             icon={<EqualizerRounded />}
                             label="Avg Size"
@@ -134,24 +152,28 @@ export default function AuctionSummary({
                             }
                             color={theme.kpi.averageSize}
                         />
-                    </MetricSlot>
-                </Box>
+                    )}
+                </MetricSlot>
+            </Box>
 
-                <Divider />
+            <Divider />
 
-                {/* lower analytics row */}
-                <Box
-                    sx={{
-                        display: 'grid',
-                        gridTemplateColumns: {
-                            xs: '1fr',
-                            md: '0.9fr 0.9fr 1.4fr'
-                        }
-                    }}>
-                    <BreakdownPanel
-                        title="Side Breakdown"
-                        qualifier="By size"
-                        tooltip="The donut represents each side's share of total auction size.">
+            {/* lower analytics row */}
+            <Box
+                sx={{
+                    display: 'grid',
+                    gridTemplateColumns: {
+                        xs: '1fr',
+                        md: '0.9fr 0.9fr 1.4fr'
+                    }
+                }}>
+                <BreakdownPanel
+                    title="Side Breakdown"
+                    qualifier="By size"
+                    tooltip="The donut represents each side's share of total auction size.">
+                    {isLoading ? (
+                        <BreakdownSkeleton />
+                    ) : (
                         <DonutBreakdown
                             percentage={bidSizePercentage}
                             isEmpty={!hasSize}
@@ -184,13 +206,17 @@ export default function AuctionSummary({
                                 />
                             }
                         />
-                    </BreakdownPanel>
+                    )}
+                </BreakdownPanel>
 
-                    <BreakdownPanel
-                        title="Product Breakdown"
-                        qualifier="By count"
-                        tooltip="The donut represents the distribution of auctions by product type."
-                        divider>
+                <BreakdownPanel
+                    title="Product Breakdown"
+                    qualifier="By count"
+                    tooltip="The donut represents the distribution of auctions by product type."
+                    divider>
+                    {isLoading ? (
+                        <BreakdownSkeleton />
+                    ) : (
                         <DonutBreakdown
                             percentage={corporateCountPercentage}
                             isEmpty={!hasAuctions}
@@ -223,12 +249,16 @@ export default function AuctionSummary({
                                 />
                             }
                         />
-                    </BreakdownPanel>
+                    )}
+                </BreakdownPanel>
 
-                    <BreakdownPanel
-                        title="Status"
-                        tooltip="Auction status is derived from curtain, expiration, and conclusion timestamps."
-                        divider>
+                <BreakdownPanel
+                    title="Status"
+                    tooltip="Auction status is derived from curtain, expiration, and conclusion timestamps."
+                    divider>
+                    {isLoading ? (
+                        <StatusSkeleton />
+                    ) : (
                         <Box
                             sx={{
                                 display: 'grid',
@@ -268,11 +298,12 @@ export default function AuctionSummary({
                                 color={theme.dataViz.expired}
                             />
                         </Box>
-                    </BreakdownPanel>
-                </Box>
-            </CardContent>
-        </Card>
-    );
+                    )}
+                </BreakdownPanel>
+            </Box>
+        </CardContent>
+    </Card>
+);
 }
 
 interface SummaryMetricProps {
@@ -704,6 +735,124 @@ function MetricSlot({
                 })
             }}>
             {children}
+        </Box>
+    );
+}
+
+function MetricSkeleton() {
+    return (
+        <Box
+            sx={{
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 0.75,
+                py: 0.25
+            }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1
+                }}>
+                <Skeleton
+                    variant="rounded"
+                    width={26}
+                    height={26}
+                />
+
+                <Skeleton
+                    variant="text"
+                    width={72}
+                    height={16}
+                />
+            </Box>
+
+            <Skeleton
+                variant="text"
+                width={60}
+                height={26}
+            />
+        </Box>
+    );
+}
+
+function BreakdownSkeleton() {
+    return (
+        <Box
+            sx={{
+                display: 'grid',
+                gridTemplateColumns: '58px minmax(0, 1fr)',
+                alignItems: 'center',
+                columnGap: 1.75,
+                minHeight: 58
+            }}>
+            <Skeleton
+                variant="circular"
+                width={58}
+                height={58}
+            />
+
+            <Box>
+                <Skeleton
+                    variant="text"
+                    width="85%"
+                    height={22}
+                />
+
+                <Skeleton
+                    variant="text"
+                    width="70%"
+                    height={22}
+                />
+            </Box>
+        </Box>
+    );
+}
+
+function StatusSkeleton() {
+    return (
+        <Box
+            sx={{
+                display: 'grid',
+                gridTemplateColumns: {
+                    xs: 'repeat(2, minmax(0, 1fr))',
+                    sm: 'repeat(4, minmax(0, 1fr))'
+                },
+                columnGap: 1.75,
+                minHeight: 58,
+                alignItems: 'center'
+            }}>
+            {[0, 1, 2, 3].map((item) => (
+                <Box
+                    key={item}
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.75
+                    }}>
+                    <Skeleton
+                        variant="circular"
+                        width={30}
+                        height={30}
+                    />
+
+                    <Box sx={{ minWidth: 0 }}>
+                        <Skeleton
+                            variant="text"
+                            width={48}
+                            height={16}
+                        />
+
+                        <Skeleton
+                            variant="text"
+                            width={24}
+                            height={20}
+                        />
+                    </Box>
+                </Box>
+            ))}
         </Box>
     );
 }

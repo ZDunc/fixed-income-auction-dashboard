@@ -30,6 +30,8 @@ interface FilterPanelProps {
     query: AuctionQuery;
     onApply: (query: AuctionQuery) => void;
     resultCount: number;
+    statusText?: string;
+    isLoading?: boolean;
 }
 
 interface FilterDraft {
@@ -57,7 +59,9 @@ const EMPTY_FILTERS: FilterDraft = {
 export default function FilterPanel({
     query,
     onApply,
-    resultCount
+    resultCount,
+    statusText,
+    isLoading = false
 }: FilterPanelProps) {
     // query draft is a local state that represents the current values of the filter inputs.
     // updated as the user interacts with the filter controls.
@@ -166,7 +170,12 @@ export default function FilterPanel({
                                 mt: 0.15,
                                 lineHeight: 1.2
                             }}>
-                            {formatNumber(resultCount)} matching {resultCount === 1 ? 'auction' : 'auctions'}
+                            {statusText ??
+                                `${formatNumber(resultCount)} matching ${
+                                    resultCount === 1
+                                        ? 'auction'
+                                        : 'auctions'
+                                }`}
                         </Typography>
                     </Box>
                 </Stack>
@@ -403,7 +412,11 @@ export default function FilterPanel({
                     variant="contained"
                     startIcon={<FilterAltOutlined />}
                     onClick={handleApply}
-                    disabled={sizeRangeInvalid || priceRangeInvalid}
+                    disabled={
+                        isLoading ||
+                        sizeRangeInvalid ||
+                        priceRangeInvalid
+                    }
                     sx={{
                         textTransform: 'none',
                         fontWeight: 600

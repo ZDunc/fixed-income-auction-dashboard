@@ -39,10 +39,12 @@ ModuleRegistry.registerModules([
 
 interface AuctionGridProps {
     auctions: Auction[];
+    isLoading?: boolean;
 }
 
 export default function AuctionGrid({
-    auctions
+    auctions,
+    isLoading = false
 }: AuctionGridProps) {
     const [quickFilterText, setQuickFilterText] = useState('');
     const [displayedCount, setDisplayedCount] = useState(auctions.length);
@@ -210,6 +212,7 @@ export default function AuctionGrid({
                     rowData={auctions}
                     columnDefs={columnDefs}
                     defaultColDef={defaultColDef}
+					loading={isLoading}
                     pagination
                     paginationPageSize={25}
                     paginationPageSizeSelector={[
