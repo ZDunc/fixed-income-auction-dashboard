@@ -170,7 +170,7 @@ export default function AuctionSummary({
                 <BreakdownPanel
                     title="Side Breakdown"
                     qualifier="By size"
-                    tooltip="The donut represents each side's share of total auction size.">
+                    tooltip="Compares total auction size on the Bid and Offer sides, highlighting where auction activity is concentrated.">
                     {isLoading ? (
                         <BreakdownSkeleton />
                     ) : (
@@ -212,7 +212,7 @@ export default function AuctionSummary({
                 <BreakdownPanel
                     title="Product Breakdown"
                     qualifier="By count"
-                    tooltip="The donut represents the distribution of auctions by product type."
+                    tooltip="Shows the mix of Corporate and Municipal auctions, giving a quick view of where current opportunities are concentrated."
                     divider>
                     {isLoading ? (
                         <BreakdownSkeleton />
@@ -254,7 +254,7 @@ export default function AuctionSummary({
 
                 <BreakdownPanel
                     title="Status"
-                    tooltip="Auction status is derived from curtain, expiration, and conclusion timestamps."
+                    tooltip="Shows where auctions are in their lifecycle, helping distinguish upcoming and active opportunities from completed or expired auctions."
                     divider>
                     {isLoading ? (
                         <StatusSkeleton />
