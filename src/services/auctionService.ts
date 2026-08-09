@@ -9,7 +9,7 @@ export async function getAuctions(
     const response = await fetch(`${API_URL}/api/data`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+        'Content-Type': 'application/json',
         },
         body: JSON.stringify(query),
     });
@@ -18,5 +18,13 @@ export async function getAuctions(
         throw new Error(`Failed to fetch auctions: ${response.status}`);
     }
 
-    return response.json();
+    const result = await response.json();
+
+    if (Array.isArray(result)) {
+        return {
+        data: result,
+        };
+    }
+
+    return result;
 }
