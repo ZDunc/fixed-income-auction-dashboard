@@ -61,6 +61,7 @@ export default function DashboardPage() {
           <AuctionFilters
             query={query}
             onApply={setQuery}
+            resultCount={auctions.length}
           />
         </Box>
       </Box>
