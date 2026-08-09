@@ -19,6 +19,7 @@ export interface AuctionStats {
     upcomingCount: number;
     activeCount: number;
     concludedCount: number;
+    expiredCount: number;
 }
 
 const NANOSECONDS_PER_MILLISECOND = 1_000_000;
@@ -43,6 +44,7 @@ export function getAuctionStats(
     let upcomingCount = 0;
     let activeCount = 0;
     let concludedCount = 0;
+    let expiredCount = 0;
 
     auctions.forEach((auction) => {
         totalSize += auction.size;
@@ -69,23 +71,22 @@ export function getAuctionStats(
         }
 
         const curtain =
-        auction.curtainTimestamp / NANOSECONDS_PER_MILLISECOND;
+            auction.curtainTimestamp / NANOSECONDS_PER_MILLISECOND;
 
         const expiration =
-        auction.expirationTimestamp / NANOSECONDS_PER_MILLISECOND;
+            auction.expirationTimestamp / NANOSECONDS_PER_MILLISECOND;
 
         const conclusion =
-        auction.conclusionTimestamp !== null
-            ? auction.conclusionTimestamp / NANOSECONDS_PER_MILLISECOND
-            : null;
+            auction.conclusionTimestamp !== null
+                ? auction.conclusionTimestamp / NANOSECONDS_PER_MILLISECOND
+                : null;
 
-        if (curtain > currentTime) {
-            upcomingCount += 1;
-        } else if (
-            expiration <= currentTime ||
-            (conclusion !== null && conclusion <= currentTime)
-        ) {
+        if (conclusion !== null && conclusion <= currentTime) {
             concludedCount += 1;
+        } else if (expiration <= currentTime) {
+            expiredCount += 1;
+        } else if (curtain > currentTime) {
+            upcomingCount += 1;
         } else {
             activeCount += 1;
         }
@@ -113,6 +114,7 @@ export function getAuctionStats(
 
         upcomingCount,
         activeCount,
-        concludedCount
+        concludedCount,
+        expiredCount
     };
 }

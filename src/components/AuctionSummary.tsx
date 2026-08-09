@@ -17,6 +17,7 @@ import EqualizerRounded from '@mui/icons-material/EqualizerRounded';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import LayersOutlined from '@mui/icons-material/LayersOutlined';
 import PlayArrowRounded from '@mui/icons-material/PlayArrowRounded';
+import ScheduleRounded from '@mui/icons-material/ScheduleRounded';
 
 import type { Auction } from '../interfaces/Auction';
 import { useCurrentTime } from '../hooks/useCurrentTime';
@@ -34,7 +35,7 @@ export default function AuctionSummary({
     const theme = useTheme();
     const currentTime = useCurrentTime();
 
-    // calcualte stats for current auctions
+    // calculate stats for current auctions
     // memoized to avoid unnecessary recalculation on re-render
     const stats = useMemo(
         () => getAuctionStats(auctions, currentTime),
@@ -43,12 +44,22 @@ export default function AuctionSummary({
 
     const bidSizePercentage = getPercentage(
         stats.bidSize,
-        stats.totalSize
+        stats.totalSize,
+    );
+
+    const offerSizePercentage = getPercentage(
+        stats.offerSize,
+        stats.totalSize,
     );
 
     const corporateCountPercentage = getPercentage(
         stats.corporateCount,
-        stats.totalAuctions
+        stats.totalAuctions,
+    );
+
+    const municipalCountPercentage = getPercentage(
+        stats.municipalCount,
+        stats.totalAuctions,
     );
 
     return (
@@ -75,43 +86,44 @@ export default function AuctionSummary({
                             xs: 'repeat(2, minmax(0, 1fr))',
                             md: 'repeat(4, minmax(0, 1fr))'
                         },
-                        px: 3,
-                        py: 1.5
+                        px: 1.5,
+                        py: 1
                     }}>
-                    <SummaryMetric
-                        icon={<LayersOutlined />}
-                        label="Total Auctions"
-                        value={formatNumber(stats.totalAuctions)}
-                        detail="Current results"
-                        color={theme.palette.primary.main}
-                    />
+                    <MetricSlot isLast={false}>
+                        <SummaryMetric
+                            icon={<LayersOutlined />}
+                            label="Total Auctions"
+                            value={formatNumber(stats.totalAuctions)}
+                            color={theme.kpi.auctions}
+                        />
+                    </MetricSlot>
 
-                    <SummaryMetric
-                        icon={<BarChartRounded />}
-                        label="Total Size"
-                        value={formatCompactNumber(stats.totalSize)}
-                        detail="Combined auction size"
-                        color={theme.palette.success.main}
-                        divider
-                    />
+                    <MetricSlot isLast={false}>
+                        <SummaryMetric
+                            icon={<BarChartRounded />}
+                            label="Total Size"
+                            value={formatCompactNumber(stats.totalSize)}
+                            color={theme.kpi.size}
+                        />
+                    </MetricSlot>
 
-                    <SummaryMetric
-                        icon={<AttachMoneyRounded />}
-                        label="Avg Price"
-                        value={formatPrice(stats.averagePrice)}
-                        detail="Across current results"
-                        color={theme.palette.secondary.main}
-                        divider
-                    />
+                    <MetricSlot isLast={false}>
+                        <SummaryMetric
+                            icon={<AttachMoneyRounded />}
+                            label="Avg Price"
+                            value={formatPrice(stats.averagePrice)}
+                            color={theme.kpi.price}
+                        />
+                    </MetricSlot>
 
-                    <SummaryMetric
-                        icon={<EqualizerRounded />}
-                        label="Avg Size"
-                        value={formatNumber(Math.round(stats.averageSize))}
-                        detail="Per auction"
-                        color={theme.palette.warning.dark}
-                        divider
-                    />
+                    <MetricSlot isLast>
+                        <SummaryMetric
+                            icon={<EqualizerRounded />}
+                            label="Avg Size"
+                            value={formatNumber(Math.round(stats.averageSize))}
+                            color={theme.kpi.averageSize}
+                        />
+                    </MetricSlot>
                 </Box>
 
                 <Divider />
@@ -122,44 +134,33 @@ export default function AuctionSummary({
                         display: 'grid',
                         gridTemplateColumns: {
                             xs: '1fr',
-                            md: '1fr 1fr 1.15fr'
+                            md: '0.9fr 0.9fr 1.4fr'
                         }
                     }}>
                     <BreakdownPanel
                         title="Side Breakdown"
+                        qualifier="By size"
                         tooltip="The donut represents each side's share of total auction size.">
                         <DonutBreakdown
-                            centerLabel="Size"
                             percentage={bidSizePercentage}
-                            primaryColor={theme.palette.primary.main}
-                            secondaryColor={theme.palette.success.main}
+                            primaryColor={theme.dataViz.bid}
+                            secondaryColor={theme.dataViz.offer}
                             primary={
                                 <LegendEntry
-                                    color={theme.palette.primary.main}
+                                    color={theme.dataViz.bid}
                                     label="Bid"
-                                    count={stats.bidCount}
-                                    countPercentage={getPercentage(
-                                        stats.bidCount,
-                                        stats.totalAuctions
-                                    )}
+                                    percentage={bidSizePercentage}
                                     size={stats.bidSize}
-                                    sizePercentage={bidSizePercentage}
+                                    count={stats.bidCount}
                                 />
                             }
                             secondary={
                                 <LegendEntry
-                                    color={theme.palette.success.main}
+                                    color={theme.dataViz.offer}
                                     label="Offer"
-                                    count={stats.offerCount}
-                                    countPercentage={getPercentage(
-                                        stats.offerCount,
-                                        stats.totalAuctions
-                                    )}
+                                    percentage={offerSizePercentage}
                                     size={stats.offerSize}
-                                    sizePercentage={getPercentage(
-                                        stats.offerSize,
-                                        stats.totalSize
-                                    )}
+                                    count={stats.offerCount}
                                 />
                             }
                         />
@@ -167,40 +168,29 @@ export default function AuctionSummary({
 
                     <BreakdownPanel
                         title="Product Breakdown"
+                        qualifier="By count"
                         tooltip="The donut represents the distribution of auctions by product type."
                         divider>
                         <DonutBreakdown
-                            centerLabel="Count"
                             percentage={corporateCountPercentage}
-                            primaryColor={theme.palette.secondary.main}
-                            secondaryColor={theme.palette.warning.main}
+                            primaryColor={theme.dataViz.corporate}
+                            secondaryColor={theme.dataViz.municipal}
                             primary={
                                 <LegendEntry
-                                    color={theme.palette.secondary.main}
+                                    color={theme.dataViz.corporate}
                                     label="Corporate"
-                                    count={stats.corporateCount}
-                                    countPercentage={corporateCountPercentage}
+                                    percentage={corporateCountPercentage}
                                     size={stats.corporateSize}
-                                    sizePercentage={getPercentage(
-                                        stats.corporateSize,
-                                        stats.totalSize
-                                    )}
+                                    count={stats.corporateCount}
                                 />
                             }
                             secondary={
                                 <LegendEntry
-                                    color={theme.palette.warning.main}
+                                    color={theme.dataViz.municipal}
                                     label="Municipal"
-                                    count={stats.municipalCount}
-                                    countPercentage={getPercentage(
-                                        stats.municipalCount,
-                                        stats.totalAuctions
-                                    )}
+                                    percentage={municipalCountPercentage}
                                     size={stats.municipalSize}
-                                    sizePercentage={getPercentage(
-                                        stats.municipalSize,
-                                        stats.totalSize
-                                    )}
+                                    count={stats.municipalCount}
                                 />
                             }
                         />
@@ -213,42 +203,40 @@ export default function AuctionSummary({
                         <Box
                             sx={{
                                 display: 'grid',
-                                gridTemplateColumns: 'repeat(3, 1fr)',
-                                gap: 1,
-                                minHeight: 88,
+                                gridTemplateColumns: {
+                                    xs: 'repeat(2, minmax(0, 1fr))',
+                                    sm: 'repeat(4, minmax(0, 1fr))'
+                                },
+                                columnGap: 1.75,
+                                minHeight: 58,
                                 alignItems: 'center'
                             }}>
                             <StatusMetric
                                 icon={<CalendarMonthRounded />}
                                 label="Upcoming"
                                 value={stats.upcomingCount}
-                                percentage={getPercentage(
-                                    stats.upcomingCount,
-                                    stats.totalAuctions
-                                )}
-                                color={theme.palette.primary.main}
+                                color={theme.dataViz.upcoming}
                             />
 
                             <StatusMetric
                                 icon={<PlayArrowRounded />}
                                 label="Active"
                                 value={stats.activeCount}
-                                percentage={getPercentage(
-                                    stats.activeCount,
-                                    stats.totalAuctions
-                                )}
-                                color={theme.palette.success.main}
+                                color={theme.dataViz.active}
                             />
 
                             <StatusMetric
                                 icon={<CheckCircleOutlineRounded />}
                                 label="Concluded"
                                 value={stats.concludedCount}
-                                percentage={getPercentage(
-                                    stats.concludedCount,
-                                    stats.totalAuctions
-                                )}
-                                color={theme.palette.secondary.main}
+                                color={theme.dataViz.concluded}
+                            />
+
+                            <StatusMetric
+                                icon={<ScheduleRounded />}
+                                label="Expired"
+                                value={stats.expiredCount}
+                                color={theme.dataViz.expired}
                             />
                         </Box>
                     </BreakdownPanel>
@@ -262,99 +250,82 @@ interface SummaryMetricProps {
     icon: ReactNode;
     label: string;
     value: string;
-    detail: string;
     color: string;
-    divider?: boolean;
 }
 
 function SummaryMetric({
     icon,
     label,
     value,
-    detail,
-    color,
-    divider = false,
+    color
 }: SummaryMetricProps) {
     return (
         <Box
             sx={{
+                width: '100%',
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
-                gap: 1.75,
-                minWidth: 0,
-                px: {
-                    xs: 1,
-                    md: 2.5
-                },
-                py: {
-                    xs: 1,
-                    md: 0
-                },
-                borderLeft: {
-                    xs: 'none',
-                    md: divider ? '1px solid' : 'none'
-                },
-                borderColor: 'divider'
+                justifyContent: 'center',
+                minWidth: 0
             }}>
-            <Box
+            <Stack
+                direction="row"
+                spacing={1}
                 sx={{
-                    width: 42,
-                    height: 42,
-                    flexShrink: 0,
-                    borderRadius: '50%',
-                    display: 'grid',
-                    placeItems: 'center',
-                    bgcolor: alpha(color, 0.12),
-                    color,
-                    '& svg': {
-                        fontSize: 22
-                    }
+                    alignItems: 'center',
+                    justifyContent: 'center'
                 }}>
-                {icon}
-            </Box>
+                <Box
+                    sx={{
+                        width: 26,
+                        height: 26,
+                        flexShrink: 0,
+                        borderRadius: 1.5,
+                        display: 'grid',
+                        placeItems: 'center',
+                        bgcolor: alpha(color, 0.08),
+                        color,
+                        '& svg': {
+                            fontSize: 16
+                        }
+                    }}>
+                    {icon}
+                </Box>
 
-            <Box sx={{ minWidth: 0 }}>
                 <Typography
                     variant="caption"
                     color="text.secondary"
                     sx={{
-                        display: 'block',
                         fontWeight: 700,
                         textTransform: 'uppercase',
-                        letterSpacing: '0.04em',
-                        lineHeight: 1.3,
+                        letterSpacing: '0.035em',
+                        lineHeight: 1,
+                        whiteSpace: 'nowrap'
                     }}>
                     {label}
                 </Typography>
+            </Stack>
 
-                <Typography
-                    variant="h5"
-                    sx={{
-                        mt: 0.25,
-                        fontWeight: 700,
-                        letterSpacing: '-0.025em',
-                        whiteSpace: 'nowrap'
-                    }}>
-                    {value}
-                </Typography>
-
-                <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{
-                        display: 'block',
-                        mt: 0.15,
-                        whiteSpace: 'nowrap'
-                    }}>
-                    {detail}
-                </Typography>
-            </Box>
+            <Typography
+                sx={{
+                    mt: 0.35,
+                    fontSize: '1.3rem',
+                    fontWeight: 700,
+                    letterSpacing: '-0.02em',
+                    lineHeight: 1,
+                    whiteSpace: 'nowrap',
+                    fontVariantNumeric: 'tabular-nums'
+                }}>
+                {value}
+            </Typography>
         </Box>
     );
 }
 
 interface BreakdownPanelProps {
     title: string;
+    qualifier?: string;
     tooltip: string;
     children: ReactNode;
     divider?: boolean;
@@ -362,6 +333,7 @@ interface BreakdownPanelProps {
 
 function BreakdownPanel({
     title,
+    qualifier,
     tooltip,
     children,
     divider = false
@@ -369,13 +341,30 @@ function BreakdownPanel({
     return (
         <Box
             sx={{
-                px: 3,
-                py: 1.25,
-                minWidth: 0,
-                borderLeft: {
-                    xs: 'none',
-                    md: divider ? '1px solid' : 'none'
+                position: 'relative',
+                px: {
+                    xs: 2,
+                    md: 2.5
                 },
+                py: 1.1,
+                minWidth: 0,
+
+                ...(divider && {
+                    '&::before': {
+                        content: '""',
+                        display: {
+                            xs: 'none',
+                            md: 'block'
+                        },
+                        position: 'absolute',
+                        left: 0,
+                        top: 0,
+                        bottom: 0,
+                        width: '1px',
+                        bgcolor: 'divider'
+                    }
+                }),
+
                 borderTop: {
                     xs: divider ? '1px solid' : 'none',
                     md: 'none'
@@ -384,8 +373,11 @@ function BreakdownPanel({
             }}>
             <Stack
                 direction="row"
-                spacing={0.75}
-                sx={{ mb: 1.5, alignItems: 'center' }}>
+                spacing={0.65}
+                sx={{
+                    mb: 0.75,
+                    alignItems: 'center'
+                }}>
                 <Typography
                     variant="caption"
                     sx={{
@@ -396,13 +388,21 @@ function BreakdownPanel({
                     {title}
                 </Typography>
 
+                {qualifier && (
+                    <Typography
+                        variant="caption"
+                        color="text.secondary">
+                        · {qualifier}
+                    </Typography>
+                )}
+
                 <Tooltip title={tooltip}>
-                <InfoOutlined
-                    sx={{
-                    fontSize: 15,
-                    color: 'text.secondary',
-                    }}
-                />
+                    <InfoOutlined
+                        sx={{
+                            fontSize: 14,
+                            color: 'text.secondary'
+                        }}
+                    />
                 </Tooltip>
             </Stack>
 
@@ -415,7 +415,6 @@ interface DonutBreakdownProps {
     percentage: number;
     primaryColor: string;
     secondaryColor: string;
-    centerLabel: string;
     primary: ReactNode;
     secondary: ReactNode;
 }
@@ -424,29 +423,27 @@ function DonutBreakdown({
     percentage,
     primaryColor,
     secondaryColor,
-    centerLabel,
     primary,
-    secondary,
+    secondary
 }: DonutBreakdownProps) {
     return (
         <Box
             sx={{
-                display: 'flex',
+                display: 'grid',
+                gridTemplateColumns: '58px minmax(0, 1fr)',
                 alignItems: 'center',
-                gap: 2.25,
-                minHeight: 88
+                columnGap: 1.75,
+                minHeight: 58
             }}>
             <Donut
                 percentage={percentage}
                 primaryColor={primaryColor}
                 secondaryColor={secondaryColor}
-                centerLabel={centerLabel}
             />
 
             <Stack
-                spacing={1}
+                spacing={0.7}
                 sx={{
-                    flex: 1,
                     minWidth: 0
                 }}>
                 {primary}
@@ -460,21 +457,18 @@ interface DonutProps {
     percentage: number;
     primaryColor: string;
     secondaryColor: string;
-    centerLabel: string;
 }
 
 function Donut({
     percentage,
     primaryColor,
-    secondaryColor,
-    centerLabel
+    secondaryColor
 }: DonutProps) {
     return (
         <Box
             sx={{
-                width: 72,
-                height: 72,
-                flexShrink: 0,
+                width: 58,
+                height: 58,
                 borderRadius: '50%',
                 background: `conic-gradient(
                 ${primaryColor} 0% ${percentage}%,
@@ -485,25 +479,12 @@ function Donut({
             }}>
             <Box
                 sx={{
-                    width: 48,
-                    height: 48,
+                    width: 38,
+                    height: 38,
                     borderRadius: '50%',
-                    bgcolor: 'background.paper',
-                    display: 'grid',
-                    placeItems: 'center'
-                }}>
-                <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        fontSize: '0.62rem',
-                        letterSpacing: '0.05em'
-                    }}>
-                    {centerLabel}
-                </Typography>
-            </Box>
+                    bgcolor: 'background.paper'
+                }}
+            />
         </Box>
     );
 }
@@ -511,32 +492,30 @@ function Donut({
 interface LegendEntryProps {
     color: string;
     label: string;
-    count: number;
-    countPercentage: number;
+    percentage: number;
     size: number;
-    sizePercentage: number;
+    count: number;
 }
 
 function LegendEntry({
     color,
     label,
-    count,
-    countPercentage,
+    percentage,
     size,
-    sizePercentage
+    count
 }: LegendEntryProps) {
     return (
         <Box
             sx={{
                 display: 'grid',
-                gridTemplateColumns: '8px minmax(0, 1fr)',
-                columnGap: 1,
+                gridTemplateColumns: '7px minmax(0, 1fr)',
+                columnGap: 0.8,
                 alignItems: 'start'
             }}>
             <Box
                 sx={{
-                    width: 8,
-                    height: 8,
+                    width: 7,
+                    height: 7,
                     mt: '5px',
                     borderRadius: '50%',
                     bgcolor: color
@@ -545,31 +524,41 @@ function LegendEntry({
 
             <Box sx={{ minWidth: 0 }}>
                 <Stack
-                direction="row"
-                spacing={1}
-                sx= {{ justifyContent: 'space-between' }}>
-                <Typography
-                    variant="body2"
-                    sx={{ fontWeight: 500 }}>
-                    {label}
-                </Typography>
-
-                <Typography
-                    variant="body2"
+                    direction="row"
+                    spacing={1}
                     sx={{
-                        fontWeight: 600,
-                        whiteSpace: 'nowrap'
+                        justifyContent: 'space-between'
                     }}>
-                    {formatNumber(count)} ({formatPercentage(countPercentage)})
-                </Typography>
+                    <Typography
+                        variant="body2"
+                        sx={{
+                            fontWeight: 500,
+                            lineHeight: 1.15
+                        }}>
+                        {label}
+                    </Typography>
+
+                    <Typography
+                        variant="body2"
+                        sx={{
+                            fontWeight: 700,
+                            whiteSpace: 'nowrap',
+                            lineHeight: 1.15
+                        }}>
+                        {formatPercentage(percentage)}
+                    </Typography>
                 </Stack>
 
                 <Typography
                     variant="caption"
                     color="text.secondary"
-                    sx={{ display: 'block' }}>
-                    {formatCompactNumber(size, 1)} size ·{' '}
-                    {formatPercentage(sizePercentage)}
+                    sx={{
+                        display: 'block',
+                        mt: 0.15,
+                        lineHeight: 1.2,
+                        whiteSpace: 'nowrap'
+                    }}>
+                    {formatCompactNumber(size, 1)} · {formatNumber(count)} auctions
                 </Typography>
             </Box>
         </Box>
@@ -580,7 +569,6 @@ interface StatusMetricProps {
     icon: ReactNode;
     label: string;
     value: number;
-    percentage: number;
     color: string;
 }
 
@@ -588,7 +576,6 @@ function StatusMetric({
     icon,
     label,
     value,
-    percentage,
     color
 }: StatusMetricProps) {
     return (
@@ -596,21 +583,21 @@ function StatusMetric({
             sx={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1,
+                gap: 0.9,
                 minWidth: 0
             }}>
             <Box
                 sx={{
-                    width: 38,
-                    height: 38,
+                    width: 30,
+                    height: 30,
                     flexShrink: 0,
                     borderRadius: '50%',
                     display: 'grid',
                     placeItems: 'center',
-                    bgcolor: alpha(color, 0.12),
+                    bgcolor: alpha(color, 0.11),
                     color,
                     '& svg': {
-                        fontSize: 21,
+                        fontSize: 17
                     }
                 }}>
                 {icon}
@@ -622,26 +609,58 @@ function StatusMetric({
                     color="text.secondary"
                     sx={{
                         display: 'block',
-                        lineHeight: 1.2
+                        lineHeight: 1.05,
+                        whiteSpace: 'nowrap'
                     }}>
                     {label}
                 </Typography>
 
                 <Typography
-                    variant="h6"
                     sx={{
+                        mt: 0.15,
+                        fontSize: '1rem',
                         fontWeight: 700,
-                        lineHeight: 1.25,
+                        lineHeight: 1.1
                     }}>
                     {formatNumber(value)}
                 </Typography>
-
-                <Typography
-                    variant="caption"
-                    color="text.secondary">
-                    {formatPercentage(percentage)}
-                </Typography>
             </Box>
+        </Box>
+    );
+}
+
+interface MetricSlotProps {
+    children: ReactNode;
+    isLast: boolean;
+}
+
+function MetricSlot({
+    children,
+    isLast
+}: MetricSlotProps) {
+    return (
+        <Box
+            sx={{
+                position: 'relative',
+                minWidth: 0,
+                px: 2,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+
+                ...(!isLast && {
+                    '&::after': {
+                        content: '""',
+                        position: 'absolute',
+                        right: 0,
+                        top: '10%',
+                        bottom: '10%',
+                        width: '1px',
+                        bgcolor: 'divider'
+                    }
+                })
+            }}>
+            {children}
         </Box>
     );
 }
