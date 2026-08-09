@@ -68,7 +68,13 @@ export default function AuctionGrid({ auctions }: AuctionGridProps) {
   );
 
   return (
-    <Box sx={{ width: '100%', height: 600 }}>
+    <Box
+      sx={{
+        width: '100%',
+        height: '100%',
+        minHeight: 0
+      }}
+    >
       <AgGridReact<Auction>
         rowData={auctions}
         columnDefs={columnDefs}
