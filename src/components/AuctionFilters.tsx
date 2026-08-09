@@ -20,13 +20,16 @@ import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Typography from '@mui/material/Typography';
+
 import type { AuctionQuery } from '../interfaces/AuctionQuery';
 import type { ProductType, Side } from '../types/AuctionTypes';
+import { formatNumber } from '../utils/formatUtils';
 
 
 interface FilterPanelProps {
     query: AuctionQuery;
     onApply: (query: AuctionQuery) => void;
+    resultCount: number;
 }
 
 interface FilterDraft {
@@ -48,16 +51,17 @@ const EMPTY_FILTERS: FilterDraft = {
     sizeMin: '',
     sizeMax: '',
     priceMin: '',
-    priceMax: '',
+    priceMax: ''
 };
 
 export default function FilterPanel({
     query,
     onApply,
+    resultCount
 }: FilterPanelProps) {
     // query draft is a local state that represents the current values of the filter inputs.
     // updated as the user interacts with the filter controls.
-    // when the user clicks "Apply Filters", the draft is converted back to an AuctionQuery 
+    // when the user clicks "Apply Filters", the draft is converted back to an AuctionQuery
     // and passed to the onApply callback
     const [draft, setDraft] = useState<FilterDraft>(
         () => queryToDraft(query)
@@ -73,14 +77,19 @@ export default function FilterPanel({
         draft.priceMax
     );
 
-    const activeFilterCount = useMemo(
+    const draftFilterCount = useMemo(
         () => countActiveFilters(draft),
         [draft]
     );
 
+    const appliedFilterCount = useMemo(
+        () => countActiveFilters(queryToDraft(query)),
+        [query]
+    );
+
     const handleApply = () => {
         if (sizeRangeInvalid || priceRangeInvalid) {
-        return;
+            return;
         }
 
         onApply(draftToQuery(draft));
@@ -106,43 +115,70 @@ export default function FilterPanel({
             {/* filter header */}
             <Box
                 sx={{
-                px: 2,
-                py: 1.25,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 1,
-                flexShrink: 0
+                    px: 2,
+                    py: 1.35,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 1,
+                    flexShrink: 0,
+                    bgcolor: 'action.hover'
                 }}>
                 <Stack
                     direction="row"
-                    spacing={0.75}
-                    sx={{ alignItems: 'center' }}>
-                    <FilterAltOutlined
-                        color="primary"
-                        sx={{ fontSize: 20 }}
-                    />
-
-                    <Typography
-                        variant="subtitle1"
+                    spacing={1}
+                    sx={{
+                        alignItems: 'center'
+                    }}>
+                    <Box
                         sx={{
-                        fontWeight: 700,
-                        lineHeight: 1.2,
+                            width: 28,
+                            height: 28,
+                            flexShrink: 0,
+                            borderRadius: 1.5,
+                            display: 'grid',
+                            placeItems: 'center',
+                            bgcolor: 'action.selected',
+                            color: 'primary.main'
                         }}>
-                        Filters
-                    </Typography>
+                        <FilterAltOutlined
+                            sx={{
+                                fontSize: 18
+                            }}
+                        />
+                    </Box>
+
+                    <Box>
+                        <Typography
+                            variant="subtitle1"
+                            sx={{
+                                fontWeight: 700,
+                                lineHeight: 1.15
+                            }}>
+                            Filters
+                        </Typography>
+
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{
+                                display: 'block',
+                                mt: 0.15,
+                                lineHeight: 1.2
+                            }}>
+                            {formatNumber(resultCount)} matching {resultCount === 1 ? 'auction' : 'auctions'}
+                        </Typography>
+                    </Box>
                 </Stack>
 
-                {/* indicator for number of active filters */}
-                {activeFilterCount > 0 && (
+                {appliedFilterCount > 0 && (
                     <Chip
-                        label={activeFilterCount}
+                        label={appliedFilterCount}
                         color="primary"
                         size="small"
                         sx={{
-                        minWidth: 26,
-                        height: 24,
-                        fontWeight: 700,
+                            minWidth: 26,
+                            height: 24
                         }}
                     />
                 )}
@@ -153,19 +189,19 @@ export default function FilterPanel({
             {/* filter controls */}
             <Box
                 sx={{
-                        flex: 1,
-                        minHeight: 0,
-                        overflowY: 'auto',
-                        px: 2,
-                        py: 1.5,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 1.25
-                    }}>
+                    flex: 1,
+                    minHeight: 0,
+                    overflowY: 'auto',
+                    px: 2,
+                    py: 1.85,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 1.6
+                }}>
                 <FilterSection
                     icon={<FingerprintRounded />}
                     title="Identifiers">
-                    <Stack spacing={1}>
+                    <Stack spacing={1.3}>
                         <TextField
                             label="CUSIP"
                             placeholder="Comma-separated CUSIPs"
@@ -175,19 +211,19 @@ export default function FilterPanel({
                             onChange={(event) =>
                                 setDraft((current) => ({
                                     ...current,
-                                    cusips: event.target.value,
+                                    cusips: event.target.value
                                 }))
                             }
                             slotProps={{
                                 input: {
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                        <SearchRounded
-                                            sx={{
-                                                fontSize: 18,
-                                                color: 'text.secondary'
-                                            }}
-                                        />
+                                            <SearchRounded
+                                                sx={{
+                                                    fontSize: 17,
+                                                    color: 'text.secondary'
+                                                }}
+                                            />
                                         </InputAdornment>
                                     )
                                 }
@@ -200,17 +236,30 @@ export default function FilterPanel({
                             size="small"
                             fullWidth
                             value={draft.id}
-                            onChange={(event) =>
-                                setDraft((current) => ({
-                                    ...current,
-                                    id: event.target.value
-                                }))
-                            }
+                            onChange={(event) => {
+                                const value = event.target.value;
+
+                                if (
+                                    value === '' ||
+                                    (/^\d+$/.test(value) && Number(value) >= 1)
+                                ) {
+                                    setDraft((current) => ({
+                                        ...current,
+                                        id: value
+                                    }));
+                                }
+                            }}
+                            slotProps={{
+                                htmlInput: {
+                                    min: 1,
+                                    step: 1
+                                }
+                            }}
                         />
                     </Stack>
                 </FilterSection>
 
-                <Divider />
+                <SectionDivider />
 
                 <FilterSection
                     icon={<SwapHorizRounded />}
@@ -239,7 +288,7 @@ export default function FilterPanel({
                     </ToggleButtonGroup>
                 </FilterSection>
 
-                <Divider />
+                <SectionDivider />
 
                 <FilterSection
                     icon={<CategoryOutlined />}
@@ -268,7 +317,7 @@ export default function FilterPanel({
                     </ToggleButtonGroup>
                 </FilterSection>
 
-                <Divider />
+                <SectionDivider />
 
                 <FilterSection
                     icon={<StraightenRounded />}
@@ -294,7 +343,7 @@ export default function FilterPanel({
                     />
                 </FilterSection>
 
-                <Divider />
+                <SectionDivider />
 
                 <FilterSection
                     icon={<AttachMoneyRounded />}
@@ -323,7 +372,7 @@ export default function FilterPanel({
 
             <Divider />
 
-            {/* reset and apply  */}
+            {/* reset and apply */}
             <Box
                 sx={{
                     p: 1.25,
@@ -338,11 +387,14 @@ export default function FilterPanel({
                     color="inherit"
                     startIcon={<RestartAltRounded />}
                     onClick={handleClear}
-                    disabled={activeFilterCount === 0}
+                    disabled={
+                        draftFilterCount === 0 &&
+                        appliedFilterCount === 0
+                    }
                     sx={{
                         px: 1,
                         textTransform: 'none',
-                        whiteSpace: 'nowrap',
+                        whiteSpace: 'nowrap'
                     }}>
                     Clear
                 </Button>
@@ -354,7 +406,7 @@ export default function FilterPanel({
                     disabled={sizeRangeInvalid || priceRangeInvalid}
                     sx={{
                         textTransform: 'none',
-                        fontWeight: 600,
+                        fontWeight: 600
                     }}>
                     Apply Filters
                 </Button>
@@ -372,40 +424,60 @@ interface FilterSectionProps {
 function FilterSection({
     icon,
     title,
-    children,
+    children
 }: FilterSectionProps) {
     return (
-        <Box>
-        <Stack
-            direction="row"
-            spacing={0.65}
-            sx={{ mb: 0.75, alignItems: 'center' }}>
-            <Box
+        <Box
+            sx={{
+                py: 0.2
+            }}>
+            <Stack
+                direction="row"
+                spacing={0.8}
                 sx={{
-                    display: 'grid',
-                    placeItems: 'center',
-                    color: 'text.secondary',
-                    '& svg': {
-                        fontSize: 16
-                    }
+                    mb: 1.2,
+                    alignItems: 'center'
                 }}>
-                {icon}
-            </Box>
+                <Box
+                    sx={{
+                        width: 20,
+                        height: 20,
+                        flexShrink: 0,
+                        display: 'grid',
+                        placeItems: 'center',
+                        color: 'primary.main',
+                        opacity: 0.78,
+                        '& svg': {
+                            fontSize: 16
+                        }
+                    }}>
+                    {icon}
+                </Box>
 
-            <Typography
-                variant="caption"
-                sx={{
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.04em',
-                    lineHeight: 1.2,
-                }}>
-                {title}
-            </Typography>
-        </Stack>
+                <Typography
+                    variant="caption"
+                    sx={{
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                        lineHeight: 1.2
+                    }}>
+                    {title}
+                </Typography>
+            </Stack>
 
-        {children}
+            {children}
         </Box>
+    );
+}
+
+function SectionDivider() {
+    return (
+        <Divider
+            sx={{
+                borderColor: 'divider'
+            }}
+        />
     );
 }
 
@@ -433,7 +505,7 @@ function RangeFields({
             sx={{
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr',
-                gap: 1
+                gap: 1.15
             }}>
             <TextField
                 label={minLabel}
@@ -455,9 +527,9 @@ function RangeFields({
                 value={maxValue}
                 error={error}
                 helperText={
-                error
-                    ? 'Max must be greater than or equal to min'
-                    : undefined
+                    error
+                        ? 'Max must be greater than or equal to min'
+                        : undefined
                 }
                 onChange={(event) =>
                     onMaxChange(event.target.value)
@@ -469,9 +541,7 @@ function RangeFields({
 
 const toggleButtonSx = {
     flex: 1,
-    py: 0.75,
-    textTransform: 'none',
-    fontWeight: 600
+    py: 0.75
 };
 
 function queryToDraft(
@@ -499,36 +569,36 @@ function draftToQuery(
 
     return {
         ...(cusips.length > 0 && {
-            cusips,
+            cusips
         }),
 
         ...(draft.id !== '' && {
-            id: Number(draft.id),
+            id: Number(draft.id)
         }),
 
         ...(draft.sides.length > 0 && {
-            sides: draft.sides,
+            sides: draft.sides
         }),
 
         ...(draft.productTypes.length > 0 && {
-            productTypes: draft.productTypes,
+            productTypes: draft.productTypes
         }),
 
         ...(draft.sizeMin !== '' && {
-            sizeMin: Number(draft.sizeMin),
+            sizeMin: Number(draft.sizeMin)
         }),
 
         ...(draft.sizeMax !== '' && {
-            sizeMax: Number(draft.sizeMax),
+            sizeMax: Number(draft.sizeMax)
         }),
 
         ...(draft.priceMin !== '' && {
-            priceMin: Number(draft.priceMin),
+            priceMin: Number(draft.priceMin)
         }),
 
         ...(draft.priceMax !== '' && {
-            priceMax: Number(draft.priceMax),
-        }),
+            priceMax: Number(draft.priceMax)
+        })
     };
 }
 
