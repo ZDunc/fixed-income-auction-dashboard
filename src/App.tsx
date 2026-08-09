@@ -1,9 +1,9 @@
+import { RouterProvider } from 'react-router-dom';
+
+import { router } from './router/appRouter';
+
 function App() {
-  return (
-    <div>
-      <h1>TDSAT Auctions</h1>
-    </div>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
