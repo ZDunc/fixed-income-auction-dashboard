@@ -42,6 +42,9 @@ export default function AuctionSummary({
         [auctions, currentTime]
     );
 
+    const hasAuctions = stats.totalAuctions > 0;
+    const hasSize = stats.totalSize > 0;
+
     const bidSizePercentage = getPercentage(
         stats.bidSize,
         stats.totalSize,
@@ -111,7 +114,11 @@ export default function AuctionSummary({
                         <SummaryMetric
                             icon={<AttachMoneyRounded />}
                             label="Avg Price"
-                            value={formatPrice(stats.averagePrice)}
+                            value={
+                                hasAuctions
+                                    ? formatPrice(stats.averagePrice)
+                                    : '—'
+                            }
                             color={theme.kpi.price}
                         />
                     </MetricSlot>
@@ -120,7 +127,11 @@ export default function AuctionSummary({
                         <SummaryMetric
                             icon={<EqualizerRounded />}
                             label="Avg Size"
-                            value={formatNumber(Math.round(stats.averageSize))}
+                            value={
+                                hasAuctions
+                                    ? formatNumber(Math.round(stats.averageSize))
+                                    : '—'
+                            }
                             color={theme.kpi.averageSize}
                         />
                     </MetricSlot>
@@ -143,13 +154,18 @@ export default function AuctionSummary({
                         tooltip="The donut represents each side's share of total auction size.">
                         <DonutBreakdown
                             percentage={bidSizePercentage}
+                            isEmpty={!hasSize}
                             primaryColor={theme.dataViz.bid}
                             secondaryColor={theme.dataViz.offer}
                             primary={
                                 <LegendEntry
                                     color={theme.dataViz.bid}
                                     label="Bid"
-                                    percentage={bidSizePercentage}
+                                    percentage={
+                                        hasSize
+                                            ? bidSizePercentage
+                                            : null
+                                    }
                                     size={stats.bidSize}
                                     count={stats.bidCount}
                                 />
@@ -158,7 +174,11 @@ export default function AuctionSummary({
                                 <LegendEntry
                                     color={theme.dataViz.offer}
                                     label="Offer"
-                                    percentage={offerSizePercentage}
+                                    percentage={
+                                        hasSize
+                                            ? offerSizePercentage
+                                            : null
+                                    }
                                     size={stats.offerSize}
                                     count={stats.offerCount}
                                 />
@@ -173,13 +193,18 @@ export default function AuctionSummary({
                         divider>
                         <DonutBreakdown
                             percentage={corporateCountPercentage}
+                            isEmpty={!hasAuctions}
                             primaryColor={theme.dataViz.corporate}
                             secondaryColor={theme.dataViz.municipal}
                             primary={
                                 <LegendEntry
                                     color={theme.dataViz.corporate}
                                     label="Corporate"
-                                    percentage={corporateCountPercentage}
+                                    percentage={
+                                        hasAuctions
+                                            ? corporateCountPercentage
+                                            : null
+                                    }
                                     size={stats.corporateSize}
                                     count={stats.corporateCount}
                                 />
@@ -188,7 +213,11 @@ export default function AuctionSummary({
                                 <LegendEntry
                                     color={theme.dataViz.municipal}
                                     label="Municipal"
-                                    percentage={municipalCountPercentage}
+                                    percentage={
+                                        hasAuctions
+                                            ? municipalCountPercentage
+                                            : null
+                                    }
                                     size={stats.municipalSize}
                                     count={stats.municipalCount}
                                 />
@@ -413,6 +442,7 @@ function BreakdownPanel({
 
 interface DonutBreakdownProps {
     percentage: number;
+    isEmpty: boolean;
     primaryColor: string;
     secondaryColor: string;
     primary: ReactNode;
@@ -421,6 +451,7 @@ interface DonutBreakdownProps {
 
 function DonutBreakdown({
     percentage,
+    isEmpty,
     primaryColor,
     secondaryColor,
     primary,
@@ -437,6 +468,7 @@ function DonutBreakdown({
             }}>
             <Donut
                 percentage={percentage}
+                isEmpty={isEmpty}
                 primaryColor={primaryColor}
                 secondaryColor={secondaryColor}
             />
@@ -455,25 +487,36 @@ function DonutBreakdown({
 
 interface DonutProps {
     percentage: number;
+    isEmpty: boolean;
     primaryColor: string;
     secondaryColor: string;
 }
 
 function Donut({
     percentage,
+    isEmpty,
     primaryColor,
     secondaryColor
 }: DonutProps) {
+    const theme = useTheme();
+
+    const emptyColor = alpha(
+        theme.palette.text.secondary,
+        0.18
+    );
+
     return (
         <Box
             sx={{
                 width: 58,
                 height: 58,
                 borderRadius: '50%',
-                background: `conic-gradient(
-                ${primaryColor} 0% ${percentage}%,
-                ${secondaryColor} ${percentage}% 100%
-                )`,
+                background: isEmpty
+                    ? emptyColor
+                    : `conic-gradient(
+                        ${primaryColor} 0% ${percentage}%,
+                        ${secondaryColor} ${percentage}% 100%
+                    )`,
                 display: 'grid',
                 placeItems: 'center'
             }}>
@@ -492,7 +535,7 @@ function Donut({
 interface LegendEntryProps {
     color: string;
     label: string;
-    percentage: number;
+    percentage: number | null;
     size: number;
     count: number;
 }
@@ -672,6 +715,10 @@ function getPercentage(
     return total > 0 ? (value / total) * 100 : 0;
 }
 
-function formatPercentage(value: number): string {
-    return `${value.toFixed(1)}%`;
+function formatPercentage(
+    value: number | null
+): string {
+    return value === null
+        ? '—'
+        : `${value.toFixed(1)}%`;
 }

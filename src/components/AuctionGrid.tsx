@@ -47,6 +47,20 @@ export default function AuctionGrid({
     const [quickFilterText, setQuickFilterText] = useState('');
     const [displayedCount, setDisplayedCount] = useState(auctions.length);
 
+	const overlayComponentParams = useMemo(
+    () => ({
+        noRows: {
+            overlayText:
+                'No auctions match the applied filters. Try adjusting or clearing your filters.'
+        },
+        noMatchingRows: {
+            overlayText:
+                'No auctions match your search. Try another ID, CUSIP, value, or date/time.'
+        }
+    }),
+    []
+);
+
     const defaultColDef = useMemo<ColDef<Auction>>(
         () => ({
             sortable: true,
@@ -206,6 +220,7 @@ export default function AuctionGrid({
                     ]}
                     alwaysShowVerticalScroll
                     quickFilterText={quickFilterText}
+					overlayComponentParams={overlayComponentParams}
                     onFilterChanged={(event) =>
                         setDisplayedCount(
                             event.api.getDisplayedRowCount()
