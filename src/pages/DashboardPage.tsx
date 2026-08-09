@@ -1,18 +1,31 @@
 import { useState } from 'react';
 
 import Box from '@mui/material/Box';
+import Drawer from '@mui/material/Drawer';
 import LinearProgress from '@mui/material/LinearProgress';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 import AuctionFilters from '../components/AuctionFilters';
 import AuctionGrid from '../components/AuctionGrid';
 import AuctionSummary from '../components/AuctionSummary';
-import { DashboardErrorState, DashboardRefreshError } from '../components/DashboardErrorStates';
+import {
+    DashboardErrorState,
+    DashboardRefreshError
+} from '../components/DashboardErrorStates';
 import Header from '../components/Header';
 import { useAuctions } from '../hooks/useAuctions';
 import type { AuctionQuery } from '../interfaces/AuctionQuery';
 
+
 export default function DashboardPage() {
+    const theme = useTheme();
+    const showPermanentFilters = useMediaQuery(
+        theme.breakpoints.up('lg')
+    );
+
     const [query, setQuery] = useState<AuctionQuery>({});
+    const [filtersOpen, setFiltersOpen] = useState(false);
 
     const {
         auctions,
@@ -38,6 +51,11 @@ export default function DashboardPage() {
             ? 'Results unavailable'
             : undefined;
 
+    const handleDrawerApply = (nextQuery: AuctionQuery) => {
+        setQuery(nextQuery);
+        setFiltersOpen(false);
+    };
+
     return (
         <Box
             sx={{
@@ -59,6 +77,7 @@ export default function DashboardPage() {
             <Box
                 component="main"
                 sx={{
+                    position: 'relative',
                     flex: 1,
                     minHeight: 0,
                     display: 'grid',
@@ -73,7 +92,6 @@ export default function DashboardPage() {
                         lg: 'hidden'
                     }
                 }}>
-                {/* show subtle progress while refreshing existing data */}
                 {isLoading && hasData && (
                     <LinearProgress
                         sx={{
@@ -112,45 +130,73 @@ export default function DashboardPage() {
                         />
                     ) : (
                         <>
-                        {hasRefreshError && (
-                            <DashboardRefreshError
-                                onRetry={refetch}
+                            {hasRefreshError && (
+                                <DashboardRefreshError
+                                    onRetry={refetch}
+                                />
+                            )}
+
+                            <AuctionSummary
+                                auctions={auctions}
+                                isLoading={isInitialLoading}
                             />
-                        )}
 
-                        <AuctionSummary
-                            auctions={auctions}
-                            isLoading={isInitialLoading}
-                        />
-
-                        <AuctionGrid
-                            auctions={auctions}
-                            isLoading={isLoading}
-                        />
+                            <AuctionGrid
+                                auctions={auctions}
+                                isLoading={isLoading}
+                                onOpenFilters={
+                                    showPermanentFilters
+                                        ? undefined
+                                        : () => setFiltersOpen(true)
+                                }
+                            />
                         </>
                     )}
                 </Box>
 
-                {/* filters */}
-                <Box
-                    component="aside"
-                    sx={{
-                        minWidth: 0,
-                        minHeight: 0,
-                        display: {
-                            xs: 'none',
-                            lg: 'block'
-                        }
-                    }}>
-                    <AuctionFilters
-                        query={query}
-                        onApply={setQuery}
-                        resultCount={auctions.length}
-                        isLoading={isLoading}
-                        statusText={filterStatusText}
-                    />
-                </Box>
+                {/* permanent filters */}
+                {showPermanentFilters && (
+                    <Box
+                        component="aside"
+                        sx={{
+                            minWidth: 0,
+                            minHeight: 0
+                        }}>
+                        <AuctionFilters
+                            query={query}
+                            onApply={setQuery}
+                            resultCount={auctions.length}
+                            isLoading={isLoading}
+                            statusText={filterStatusText}
+                        />
+                    </Box>
+                )}
             </Box>
+
+            {/* compact-screen filters */}
+            {!showPermanentFilters && (
+                <Drawer
+                    anchor="right"
+                    open={filtersOpen}
+                    onClose={() => setFiltersOpen(false)}>
+                    <Box
+                        sx={{
+                            width: {
+                                xs: '100vw',
+                                sm: 360
+                            },
+                            height: '100%'
+                        }}>
+                        <AuctionFilters
+                            query={query}
+                            onApply={handleDrawerApply}
+                            resultCount={auctions.length}
+                            isLoading={isLoading}
+                            statusText={filterStatusText}
+                        />
+                    </Box>
+                </Drawer>
+            )}
         </Box>
     );
 }

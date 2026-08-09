@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -8,6 +9,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import ClearRounded from '@mui/icons-material/ClearRounded';
+import FilterAltOutlined from '@mui/icons-material/FilterAltOutlined';
 import SearchRounded from '@mui/icons-material/SearchRounded';
 import TableRowsOutlined from '@mui/icons-material/TableRowsOutlined';
 
@@ -19,13 +21,15 @@ interface AuctionGridToolbarProps {
     displayedCount: number;
     searchText: string;
     onSearchChange: (value: string) => void;
+    onOpenFilters?: () => void;
 }
 
 export default function AuctionGridToolbar({
     totalCount,
     displayedCount,
     searchText,
-    onSearchChange
+    onSearchChange,
+    onOpenFilters
 }: AuctionGridToolbarProps) {
     const hasSearch = searchText.trim().length > 0;
 
@@ -38,10 +42,24 @@ export default function AuctionGridToolbar({
             sx={{
                 minHeight: 46,
                 px: 1.75,
+                py: {
+                    xs: 0.75,
+                    sm: 0
+                },
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: {
+                    xs: 'stretch',
+                    sm: 'center'
+                },
                 justifyContent: 'space-between',
-                gap: 2,
+                flexDirection: {
+                    xs: 'column',
+                    sm: 'row'
+                },
+                gap: {
+                    xs: 1,
+                    sm: 2
+                },
                 bgcolor: 'background.paper'
             }}>
             <Stack
@@ -80,62 +98,89 @@ export default function AuctionGridToolbar({
                 />
             </Stack>
 
-            <Tooltip
-                title="Search across all displayed auction values, including formatted prices and date/times"
-                placement="bottom">
-                <TextField
-                    value={searchText}
-                    onChange={(event) =>
-                        onSearchChange(event.target.value)
+            <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                    alignItems: 'center',
+                    width: {
+                        xs: '100%',
+                        sm: 'auto'
                     }
-                    placeholder="Search auctions"
-                    size="small"
-                    sx={{
-                        width: 240,
-                        maxWidth: '45%',
+                }}>
+                {onOpenFilters && (
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        startIcon={<FilterAltOutlined />}
+                        onClick={onOpenFilters}
+                        sx={{
+                            height: 34,
+                            whiteSpace: 'nowrap'
+                        }}>
+                        Filters
+                    </Button>
+                )}
 
-                        '& .MuiInputBase-root': {
-                            height: 34
-                        },
-
-                        '& .MuiInputBase-input': {
-                            fontSize: '0.875rem'
+                <Tooltip
+                    title="Search across all displayed auction values, including formatted prices and date/times"
+                    placement="bottom">
+                    <TextField
+                        value={searchText}
+                        onChange={(event) =>
+                            onSearchChange(event.target.value)
                         }
-                    }}
-                    slotProps={{
-                        input: {
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <SearchRounded
-                                        sx={{
-                                            fontSize: 17,
-                                            color: 'text.secondary'
-                                        }}
-                                    />
-                                </InputAdornment>
-                            ),
+                        placeholder="Search auctions"
+                        size="small"
+                        sx={{
+                            width: {
+                                xs: '100%',
+                                sm: 240
+                            },
 
-                            endAdornment: searchText ? (
-                                <InputAdornment position="end">
-                                    <Tooltip title="Clear search">
-                                        <IconButton
-                                            size="small"
-                                            onClick={() => onSearchChange('')}
-                                            edge="end"
-                                            aria-label="Clear table search">
-                                            <ClearRounded
-                                                sx={{
-                                                    fontSize: 17
-                                                }}
-                                            />
-                                        </IconButton>
-                                    </Tooltip>
-                                </InputAdornment>
-                            ) : undefined
-                        }
-                    }}
-                />
-            </Tooltip>
+                            '& .MuiInputBase-root': {
+                                height: 34
+                            },
+
+                            '& .MuiInputBase-input': {
+                                fontSize: '0.875rem'
+                            }
+                        }}
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <SearchRounded
+                                            sx={{
+                                                fontSize: 17,
+                                                color: 'text.secondary'
+                                            }}
+                                        />
+                                    </InputAdornment>
+                                ),
+
+                                endAdornment: searchText ? (
+                                    <InputAdornment position="end">
+                                        <Tooltip title="Clear search">
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => onSearchChange('')}
+                                                edge="end"
+                                                aria-label="Clear table search">
+                                                <ClearRounded
+                                                    sx={{
+                                                        fontSize: 17
+                                                    }}
+                                                />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </InputAdornment>
+                                ) : undefined
+                            }
+                        }}
+                    />
+                </Tooltip>
+            </Stack>
         </Box>
     );
 }

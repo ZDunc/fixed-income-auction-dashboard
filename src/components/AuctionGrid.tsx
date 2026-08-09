@@ -40,11 +40,13 @@ ModuleRegistry.registerModules([
 interface AuctionGridProps {
     auctions: Auction[];
     isLoading?: boolean;
+    onOpenFilters?: () => void;
 }
 
 export default function AuctionGrid({
     auctions,
-    isLoading = false
+    isLoading = false,
+    onOpenFilters
 }: AuctionGridProps) {
     const [quickFilterText, setQuickFilterText] = useState('');
     const [displayedCount, setDisplayedCount] = useState(auctions.length);
@@ -198,6 +200,7 @@ export default function AuctionGrid({
                 displayedCount={displayedCount}
                 searchText={quickFilterText}
                 onSearchChange={setQuickFilterText}
+				onOpenFilters={onOpenFilters}
             />
 
             <Box
