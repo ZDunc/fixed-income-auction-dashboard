@@ -21,39 +21,47 @@ export default function AuctionGrid({ auctions }: AuctionGridProps) {
       {
         field: 'cusip',
         headerName: 'CUSIP',
+        flex: 1
       },
       {
         field: 'side',
         headerName: 'Side',
+        flex: 1
       },
       {
-        field: 'size',
+       field: 'size',
         headerName: 'Size',
-        valueFormatter: ({ value }) => formatNumber(value),
+        flex: 1,
+        valueFormatter: ({ value }) => formatNumber(value)
       },
       {
         field: 'productType',
         headerName: 'Product Type',
+        flex: 1
       },
       {
         field: 'price',
         headerName: 'Price',
-        valueFormatter: ({ value }) => formatPrice(value),
+        flex: 1,
+        valueFormatter: ({ value }) => formatPrice(value)
       },
       {
         field: 'curtainTimestamp',
         headerName: 'Curtain',
-        valueFormatter: ({ value }) => formatTimestamp(value),
+        flex: 1.5,
+        valueFormatter: ({ value }) => formatTimestamp(value)
       },
       {
         field: 'expirationTimestamp',
         headerName: 'Expiration',
-        valueFormatter: ({ value }) => formatTimestamp(value),
+        flex: 1.5,
+        valueFormatter: ({ value }) => formatTimestamp(value)
       },
       {
         field: 'conclusionTimestamp',
         headerName: 'Conclusion',
-        valueFormatter: ({ value }) => formatTimestamp(value),
+        flex: 1.5,
+        valueFormatter: ({ value }) => formatTimestamp(value)
       }
     ],
     []
