@@ -29,3 +29,17 @@ export function formatNumber(value: number | null): string {
 
     return new Intl.NumberFormat('en-US').format(value);
 }
+
+export function formatCompactNumber(
+    value: number | null,
+    maximumFractionDigits = 2,
+): string {
+    if (value == null) {
+        return '';
+    }
+
+    return new Intl.NumberFormat('en-US', {
+        notation: 'compact',
+        maximumFractionDigits,
+    }).format(value);
+}
