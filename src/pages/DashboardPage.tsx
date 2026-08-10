@@ -31,6 +31,7 @@ export default function DashboardPage() {
         isLoading,
         error,
         hasLoaded,
+        lastUpdated,
         refetch
     } = useAuctions(query);
 
@@ -146,6 +147,7 @@ export default function DashboardPage() {
                                 auctions={auctions}
                                 isLoading={isLoading}
                                 hasAppliedFilters={hasAppliedFilters}
+                                lastUpdated={lastUpdated}
                                 onOpenFilters={
                                     showPermanentFilters
                                         ? undefined

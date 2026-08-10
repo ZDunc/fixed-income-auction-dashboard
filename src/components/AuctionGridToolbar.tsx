@@ -13,13 +13,14 @@ import FilterAltOutlined from '@mui/icons-material/FilterAltOutlined';
 import SearchRounded from '@mui/icons-material/SearchRounded';
 import TableRowsOutlined from '@mui/icons-material/TableRowsOutlined';
 
-import { formatNumber } from '../utils/formatUtils';
+import { formatNumber, formatUpdatedTime } from '../utils/formatUtils';
 
 
 interface AuctionGridToolbarProps {
     totalCount: number;
     displayedCount: number;
     searchText: string;
+    lastUpdated?: number | null;
     onSearchChange: (value: string) => void;
     onOpenFilters?: () => void;
 }
@@ -28,6 +29,7 @@ export default function AuctionGridToolbar({
     totalCount,
     displayedCount,
     searchText,
+    lastUpdated = null,
     onSearchChange,
     onOpenFilters
 }: AuctionGridToolbarProps) {
@@ -94,7 +96,24 @@ export default function AuctionGridToolbar({
                         }}
                     />
                 )}
-            </Stack>
+
+                {lastUpdated !== null && (
+                    <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{
+                            display: {
+                                xs: 'none',
+                                sm: 'block'
+                            },
+                            ml: 0.25,
+                            fontSize: '0.68rem',
+                            whiteSpace: 'nowrap'
+                        }}>
+                        Updated {formatUpdatedTime(lastUpdated)}
+                    </Typography>
+                )}
+                            </Stack>
 
             <Stack
                 direction="row"

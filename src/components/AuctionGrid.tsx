@@ -41,6 +41,7 @@ interface AuctionGridProps {
     auctions: Auction[];
     isLoading?: boolean;
     hasAppliedFilters?: boolean;
+    lastUpdated?: number | null;
     onOpenFilters?: () => void;
 }
 
@@ -48,6 +49,7 @@ export default function AuctionGrid({
     auctions,
     isLoading = false,
     hasAppliedFilters = false,
+    lastUpdated = null,
     onOpenFilters
 }: AuctionGridProps) {
     const [quickFilterText, setQuickFilterText] = useState('');
@@ -223,12 +225,13 @@ export default function AuctionGrid({
                     '0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.05)'
             }}>
             <AuctionGridToolbar
-                totalCount={auctions.length}
-                displayedCount={displayedCount}
-                searchText={quickFilterText}
-                onSearchChange={setQuickFilterText}
-                onOpenFilters={onOpenFilters}
-            />
+				totalCount={auctions.length}
+				displayedCount={displayedCount}
+				searchText={quickFilterText}
+				lastUpdated={lastUpdated}
+				onSearchChange={setQuickFilterText}
+				onOpenFilters={onOpenFilters}
+			/>
 
             <Box
                 sx={{

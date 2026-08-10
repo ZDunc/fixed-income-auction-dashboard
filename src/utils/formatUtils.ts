@@ -9,6 +9,19 @@ export function formatTimestamp(value: number | null): string {
     });
 }
 
+export function formatUpdatedTime(
+    timestamp: number
+): string {
+    return new Date(timestamp).toLocaleTimeString(
+        undefined,
+        {
+            hour: 'numeric',
+            minute: '2-digit',
+            second: '2-digit'
+        }
+    );
+}
+
 export function formatPrice(value: number | null): string {
     if (value == null) {
         return '';
