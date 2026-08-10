@@ -6,17 +6,16 @@ import LinearProgress from '@mui/material/LinearProgress';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 
-import AuctionFilters from '../components/AuctionFilters';
 import AuctionGrid from '../components/AuctionGrid';
 import AuctionSummary from '../components/AuctionSummary';
 import {
     DashboardErrorState,
     DashboardRefreshError
 } from '../components/DashboardErrorStates';
+import FilterPanel from '../components/FilterPanel';
 import Header from '../components/Header';
 import { useAuctions } from '../hooks/useAuctions';
 import type { AuctionQuery } from '../interfaces/AuctionQuery';
-
 
 export default function DashboardPage() {
     const theme = useTheme();
@@ -162,7 +161,7 @@ export default function DashboardPage() {
                             minWidth: 0,
                             minHeight: 0
                         }}>
-                        <AuctionFilters
+                        <FilterPanel
                             query={query}
                             onApply={setQuery}
                             resultCount={auctions.length}
@@ -187,7 +186,7 @@ export default function DashboardPage() {
                             },
                             height: '100%'
                         }}>
-                        <AuctionFilters
+                        <FilterPanel
                             query={query}
                             onApply={handleDrawerApply}
                             resultCount={auctions.length}
