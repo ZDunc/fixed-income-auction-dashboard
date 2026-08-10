@@ -3,7 +3,7 @@ import type { Auction } from '../interfaces/Auction';
 export interface AuctionStats {
     totalAuctions: number;
     totalSize: number;
-    averagePrice: number;
+    averagePrice: number | null;
     averageSize: number;
 
     bidCount: number;
@@ -30,6 +30,7 @@ export function getAuctionStats(
 ): AuctionStats {
     let totalSize = 0;
     let totalPrice = 0;
+    let pricedAuctionCount = 0;
 
     let bidCount = 0;
     let offerCount = 0;
@@ -48,7 +49,11 @@ export function getAuctionStats(
 
     auctions.forEach((auction) => {
         totalSize += auction.size;
-        totalPrice += auction.price;
+
+        if (auction.price !== null) {
+            totalPrice += auction.price;
+            pricedAuctionCount += 1;
+        }
 
         if (auction.side === 'Bid') {
             bidCount += 1;
@@ -66,22 +71,28 @@ export function getAuctionStats(
         }
 
         if (auction.productType === 'Municipal') {
-        municipalCount += 1;
-        municipalSize += auction.size;
+            municipalCount += 1;
+            municipalSize += auction.size;
         }
 
         const curtain =
-            auction.curtainTimestamp / NANOSECONDS_PER_MILLISECOND;
+            auction.curtainTimestamp /
+            NANOSECONDS_PER_MILLISECOND;
 
         const expiration =
-            auction.expirationTimestamp / NANOSECONDS_PER_MILLISECOND;
+            auction.expirationTimestamp /
+            NANOSECONDS_PER_MILLISECOND;
 
         const conclusion =
             auction.conclusionTimestamp !== null
-                ? auction.conclusionTimestamp / NANOSECONDS_PER_MILLISECOND
+                ? auction.conclusionTimestamp /
+                    NANOSECONDS_PER_MILLISECOND
                 : null;
 
-        if (conclusion !== null && conclusion <= currentTime) {
+        if (
+            conclusion !== null &&
+            conclusion <= currentTime
+        ) {
             concludedCount += 1;
         } else if (expiration <= currentTime) {
             expiredCount += 1;
@@ -98,9 +109,13 @@ export function getAuctionStats(
         totalAuctions,
         totalSize,
         averagePrice:
-        totalAuctions > 0 ? totalPrice / totalAuctions : 0,
+            pricedAuctionCount > 0
+                ? totalPrice / pricedAuctionCount
+                : null,
         averageSize:
-        totalAuctions > 0 ? totalSize / totalAuctions : 0,
+            totalAuctions > 0
+                ? totalSize / totalAuctions
+                : 0,
 
         bidCount,
         offerCount,
