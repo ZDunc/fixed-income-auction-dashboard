@@ -33,10 +33,6 @@ export default function AuctionGridToolbar({
 }: AuctionGridToolbarProps) {
     const hasSearch = searchText.trim().length > 0;
 
-    const resultLabel = hasSearch
-        ? `${formatNumber(displayedCount)} of ${formatNumber(totalCount)}`
-        : `${formatNumber(totalCount)} auctions`;
-
     return (
         <Box
             sx={{
@@ -83,19 +79,21 @@ export default function AuctionGridToolbar({
                     Auctions
                 </Typography>
 
-                <Chip
-                    label={resultLabel}
-                    size="small"
-                    sx={{
-                        height: 22,
-                        px: 0.25,
-                        bgcolor: 'action.hover',
-                        color: 'text.secondary',
-                        border: 0,
-                        fontSize: '0.7rem',
-                        fontWeight: 600
-                    }}
-                />
+                {hasSearch && (
+                    <Chip
+                        label={`${formatNumber(displayedCount)} of ${formatNumber(totalCount)}`}
+                        size="small"
+                        sx={{
+                            height: 22,
+                            px: 0.25,
+                            bgcolor: 'action.hover',
+                            color: 'text.secondary',
+                            border: 0,
+                            fontSize: '0.7rem',
+                            fontWeight: 600
+                        }}
+                    />
+                )}
             </Stack>
 
             <Stack
