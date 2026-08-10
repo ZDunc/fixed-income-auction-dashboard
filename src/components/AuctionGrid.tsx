@@ -53,20 +53,20 @@ export default function AuctionGrid({
     const [quickFilterText, setQuickFilterText] = useState('');
     const [displayedCount, setDisplayedCount] = useState(auctions.length);
 
-	const overlayComponentParams = useMemo(
-		() => ({
-			noRows: {
-				overlayText: hasAppliedFilters
-					? 'No auctions match the applied filters. Try adjusting or clearing your filters.'
-					: 'No auctions are currently available.'
-			},
-			noMatchingRows: {
-				overlayText:
-					'No auctions match your search. Try a different search term.'
-			}
-		}),
-		[hasAppliedFilters]
-	);
+    const overlayComponentParams = useMemo(
+        () => ({
+            noRows: {
+                overlayText: hasAppliedFilters
+                    ? 'No auctions match the applied filters. Try adjusting or clearing your filters.'
+                    : 'No auctions are currently available.'
+            },
+            noMatchingRows: {
+                overlayText:
+                    'No auctions match your search. Try a different search term.'
+            }
+        }),
+        [hasAppliedFilters]
+    );
 
     const defaultColDef = useMemo<ColDef<Auction>>(
         () => ({
@@ -203,13 +203,16 @@ export default function AuctionGrid({
                 displayedCount={displayedCount}
                 searchText={quickFilterText}
                 onSearchChange={setQuickFilterText}
-				onOpenFilters={onOpenFilters}
+                onOpenFilters={onOpenFilters}
             />
 
             <Box
                 sx={{
                     flex: 1,
                     minHeight: 0,
+                    minWidth: 0,
+                    width: '100%',
+                    overflow: 'hidden',
                     borderTop: 1,
                     borderColor: 'divider'
                 }}>
@@ -218,7 +221,7 @@ export default function AuctionGrid({
                     rowData={auctions}
                     columnDefs={columnDefs}
                     defaultColDef={defaultColDef}
-					loading={isLoading}
+                    loading={isLoading}
                     pagination
                     paginationPageSize={25}
                     paginationPageSizeSelector={[
@@ -229,7 +232,7 @@ export default function AuctionGrid({
                     ]}
                     alwaysShowVerticalScroll
                     quickFilterText={quickFilterText}
-					overlayComponentParams={overlayComponentParams}
+                    overlayComponentParams={overlayComponentParams}
                     onFilterChanged={(event) =>
                         setDisplayedCount(
                             event.api.getDisplayedRowCount()
