@@ -8,7 +8,7 @@ interface UseAuctionsResult {
     auctions: Auction[];
     isLoading: boolean;
     error: string | null;
-	lastUpdated: number | null;
+    lastUpdated: number | null;
     hasLoaded: boolean;
     refetch: () => void;
 }
@@ -18,8 +18,8 @@ export function useAuctions(
 ): UseAuctionsResult {
     const [auctions, setAuctions] = useState<Auction[]>([]);
     const [error, setError] = useState<string | null>(null);
-	const [hasLoaded, setHasLoaded] = useState(false);
-	const [lastUpdated, setLastUpdated] = useState<number | null>(null);
+    const [hasLoaded, setHasLoaded] = useState(false);
+    const [lastUpdated, setLastUpdated] = useState<number | null>(null);
     const [resolvedQuery, setResolvedQuery] =
         useState<AuctionQuery | null>(null);
     const [requestVersion, setRequestVersion] = useState(0);
@@ -44,16 +44,16 @@ export function useAuctions(
 
                 setAuctions(response.data);
                 setError(null);
-				setHasLoaded(true);
-				setLastUpdated(Date.now());
-            } catch (error) {
+                setHasLoaded(true);
+                setLastUpdated(Date.now());
+            } catch (caughtError) {
                 if (ignore) {
                     return;
                 }
 
                 setError(
-                    error instanceof Error
-                        ? error.message
+                    caughtError instanceof Error
+                        ? caughtError.message
                         : 'Failed to load auctions'
                 );
             } finally {
@@ -74,8 +74,8 @@ export function useAuctions(
         auctions,
         isLoading,
         error,
-		hasLoaded,
-		lastUpdated,
+        hasLoaded,
+        lastUpdated,
         refetch
     };
 }

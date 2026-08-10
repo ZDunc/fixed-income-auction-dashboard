@@ -2,7 +2,6 @@ import { useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
-import LinearProgress from '@mui/material/LinearProgress';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 
@@ -46,9 +45,11 @@ export default function DashboardPage() {
 
     const filterStatusText = isLoading
         ? 'Loading auctions...'
-        : error
+        : hasInitialError
             ? 'Results unavailable'
-            : undefined;
+            : hasRefreshError
+                ? 'Showing previous results'
+                : undefined;
 
     const hasAppliedFilters =
         Object.keys(query).length > 0;
@@ -79,7 +80,6 @@ export default function DashboardPage() {
             <Box
                 component="main"
                 sx={{
-                    position: 'relative',
                     flex: 1,
                     minHeight: 0,
                     display: 'grid',
@@ -94,19 +94,6 @@ export default function DashboardPage() {
                         lg: 'hidden'
                     }
                 }}>
-                {isLoading && hasLoaded && (
-                    <LinearProgress
-                        sx={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            height: 2,
-                            zIndex: 2
-                        }}
-                    />
-                )}
-
                 {/* main content */}
                 <Box
                     aria-busy={isLoading}

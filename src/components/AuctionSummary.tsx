@@ -38,8 +38,6 @@ export default function AuctionSummary({
     const theme = useTheme();
     const currentTime = useCurrentTime();
 
-    // calculate stats for current auctions
-    // memoized to avoid unnecessary recalculation on re-render
     const stats = useMemo(
         () => getAuctionStats(auctions, currentTime),
         [auctions, currentTime]
@@ -99,7 +97,7 @@ export default function AuctionSummary({
                         px: 1.5,
                         py: 1
                     }}>
-                    <MetricSlot isLast={false}>
+                    <MetricSlot dividerOnXs>
                         {isLoading ? (
                             <MetricSkeleton />
                         ) : (
@@ -112,7 +110,7 @@ export default function AuctionSummary({
                         )}
                     </MetricSlot>
 
-                    <MetricSlot isLast={false}>
+                    <MetricSlot>
                         {isLoading ? (
                             <MetricSkeleton />
                         ) : (
@@ -125,7 +123,7 @@ export default function AuctionSummary({
                         )}
                     </MetricSlot>
 
-                    <MetricSlot isLast={false}>
+                    <MetricSlot dividerOnXs>
                         {isLoading ? (
                             <MetricSkeleton />
                         ) : (
@@ -663,7 +661,8 @@ function LegendEntry({
                         lineHeight: 1.2,
                         whiteSpace: 'nowrap'
                     }}>
-                    {formatCompactNumber(size, 1)} · {formatNumber(count)} auctions
+                    {formatCompactNumber(size, 1)} · {formatNumber(count)}{' '}
+                    {count === 1 ? 'auction' : 'auctions'}
                 </Typography>
             </Box>
         </Box>
@@ -736,12 +735,14 @@ function StatusMetric({
 
 interface MetricSlotProps {
     children: ReactNode;
-    isLast: boolean;
+    isLast?: boolean;
+    dividerOnXs?: boolean;
 }
 
 function MetricSlot({
     children,
-    isLast
+    isLast = false,
+    dividerOnXs = false
 }: MetricSlotProps) {
     return (
         <Box
@@ -759,6 +760,12 @@ function MetricSlot({
                 ...(!isLast && {
                     '&::after': {
                         content: '""',
+                        display: {
+                            xs: dividerOnXs
+                                ? 'block'
+                                : 'none',
+                            md: 'block'
+                        },
                         position: 'absolute',
                         right: 0,
                         top: '10%',
@@ -775,40 +782,41 @@ function MetricSlot({
 
 function MetricSkeleton() {
     return (
-        <Box
+        <Stack
+            direction="row"
+            spacing={1.25}
             sx={{
                 width: '100%',
-                display: 'flex',
-                flexDirection: 'column',
+                minWidth: 0,
                 alignItems: 'center',
-                gap: 0.75,
-                py: 0.25
+                justifyContent: {
+                    xs: 'flex-start',
+                    md: 'center'
+                }
             }}>
-            <Box
+            <Skeleton
+                variant="rounded"
+                width={30}
+                height={30}
                 sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1
-                }}>
-                <Skeleton
-                    variant="rounded"
-                    width={26}
-                    height={26}
-                />
+                    flexShrink: 0
+                }}
+            />
 
+            <Box>
                 <Skeleton
                     variant="text"
                     width={72}
                     height={16}
                 />
-            </Box>
 
-            <Skeleton
-                variant="text"
-                width={60}
-                height={26}
-            />
-        </Box>
+                <Skeleton
+                    variant="text"
+                    width={60}
+                    height={24}
+                />
+            </Box>
+        </Stack>
     );
 }
 

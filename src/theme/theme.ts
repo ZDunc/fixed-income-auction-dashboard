@@ -14,7 +14,7 @@ export const appColors = {
         subtle: '#F8FAFD',
         gridHeader: '#F5F7FA',
         gridChrome: '#FAFBFC',
-        border: '#D6DEE8',
+        border: '#D6DEE8'
     },
 
     text: {
@@ -32,10 +32,8 @@ export const appColors = {
     dataViz: {
         bid: '#2563EB',
         offer: '#14B8A6',
-
         corporate: '#6B5CCB',
         municipal: '#B5658A',
-
         upcoming: '#3B82F6',
         active: '#16A34A',
         concluded: '#7A8699',
@@ -53,23 +51,8 @@ const controlBorderHover = alpha(
     0.38
 );
 
-interface KpiColors {
-    auctions: string;
-    size: string;
-    price: string;
-    averageSize: string;
-}
-
-interface DataVizColors {
-    bid: string;
-    offer: string;
-    corporate: string;
-    municipal: string;
-    upcoming: string;
-    active: string;
-    concluded: string;
-    expired: string;
-}
+type KpiColors = typeof appColors.kpi;
+type DataVizColors = typeof appColors.dataViz;
 
 declare module '@mui/material/styles' {
     interface Theme {
@@ -131,7 +114,8 @@ export const theme = createTheme({
         fontFamily,
 
         button: {
-        fontWeight: 600
+            fontWeight: 600,
+            textTransform: 'none'
         }
     },
 
@@ -147,9 +131,9 @@ export const theme = createTheme({
         MuiCard: {
             styleOverrides: {
                 root: {
-                borderColor: appColors.surface.border,
-                boxShadow:
-                    '0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.05)'
+                    borderColor: appColors.surface.border,
+                    boxShadow:
+                        '0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.05)'
                 }
             }
         },
@@ -157,9 +141,7 @@ export const theme = createTheme({
         MuiButton: {
             styleOverrides: {
                 root: {
-                    textTransform: 'none',
-                    borderRadius: 8,
-                    fontWeight: 600
+                    borderRadius: 8
                 },
 
                 contained: {
@@ -187,7 +169,8 @@ export const theme = createTheme({
                     },
 
                     '&.Mui-focused': {
-                        boxShadow: '0 0 0 3px rgba(31, 77, 184, 0.10)'
+                        boxShadow:
+                            '0 0 0 3px rgba(31, 77, 184, 0.10)'
                     },
 
                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
@@ -235,15 +218,7 @@ export const theme = createTheme({
         MuiChip: {
             styleOverrides: {
                 root: {
-                fontWeight: 600
-                }
-            }
-        },
-
-        MuiDivider: {
-            styleOverrides: {
-                root: {
-                borderColor: appColors.surface.border
+                    fontWeight: 600
                 }
             }
         }

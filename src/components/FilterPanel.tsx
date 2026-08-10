@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 
 import AttachMoneyRounded from '@mui/icons-material/AttachMoneyRounded';
 import CategoryOutlined from '@mui/icons-material/CategoryOutlined';
@@ -24,7 +24,6 @@ import Typography from '@mui/material/Typography';
 import type { AuctionQuery } from '../interfaces/AuctionQuery';
 import type { ProductType, Side } from '../types/AuctionTypes';
 import { formatNumber } from '../utils/formatUtils';
-
 
 interface FilterPanelProps {
     query: AuctionQuery;
@@ -63,10 +62,6 @@ export default function FilterPanel({
     statusText,
     isLoading = false
 }: FilterPanelProps) {
-    // query draft is a local state that represents the current values of the filter inputs.
-    // updated as the user interacts with the filter controls.
-    // when the user clicks "Apply Filters", the draft is converted back to an AuctionQuery
-    // and passed to the onApply callback
     const [draft, setDraft] = useState<FilterDraft>(
         () => queryToDraft(query)
     );
@@ -81,14 +76,10 @@ export default function FilterPanel({
         draft.priceMax
     );
 
-    const draftFilterCount = useMemo(
-        () => countActiveFilters(draft),
-        [draft]
-    );
+    const draftFilterCount = countActiveFilters(draft);
 
-    const appliedFilterCount = useMemo(
-        () => countActiveFilters(queryToDraft(query)),
-        [query]
+    const appliedFilterCount = countActiveFilters(
+        queryToDraft(query)
     );
 
     const handleApply = () => {
@@ -96,7 +87,10 @@ export default function FilterPanel({
             return;
         }
 
-        onApply(draftToQuery(draft));
+        const nextQuery = draftToQuery(draft);
+
+        setDraft(queryToDraft(nextQuery));
+        onApply(nextQuery);
     };
 
     const handleClear = () => {
@@ -355,6 +349,7 @@ export default function FilterPanel({
                         }
                     />
                 </FilterSection>
+
                 <SectionDivider />
 
                 <FilterSection
@@ -675,7 +670,9 @@ function isInvalidRange(
     return Number(minValue) > Number(maxValue);
 }
 
-function countActiveFilters(draft: FilterDraft): number {
+function countActiveFilters(
+    draft: FilterDraft
+): number {
     let count = 0;
 
     if (draft.cusips.trim()) count += 1;

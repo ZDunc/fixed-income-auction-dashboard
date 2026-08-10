@@ -20,7 +20,7 @@ interface AuctionGridToolbarProps {
     totalCount: number;
     displayedCount: number;
     searchText: string;
-    lastUpdated?: number | null;
+    lastUpdated: number | null;
     onSearchChange: (value: string) => void;
     onOpenFilters?: () => void;
 }
@@ -29,7 +29,7 @@ export default function AuctionGridToolbar({
     totalCount,
     displayedCount,
     searchText,
-    lastUpdated = null,
+    lastUpdated,
     onSearchChange,
     onOpenFilters
 }: AuctionGridToolbarProps) {
@@ -113,7 +113,7 @@ export default function AuctionGridToolbar({
                         Updated {formatUpdatedTime(lastUpdated)}
                     </Typography>
                 )}
-                            </Stack>
+            </Stack>
 
             <Stack
                 direction="row"
@@ -140,7 +140,7 @@ export default function AuctionGridToolbar({
                 )}
 
                 <Tooltip
-                    title="Search across all displayed auction values, including formatted prices and date/times"
+                    title="Search across auction fields, including formatted prices and date/times"
                     placement="bottom">
                     <TextField
                         value={searchText}

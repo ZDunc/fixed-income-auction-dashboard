@@ -18,7 +18,7 @@ export default function Header() {
             <Toolbar
                 sx={{
                     px: { xs: 2, md: 3 },
-                    minHeight: '48px !important'
+                    minHeight: '48px'
                 }}>
                 <DashboardOutlined
                     color="primary"

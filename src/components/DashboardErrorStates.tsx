@@ -65,7 +65,11 @@ export function DashboardRefreshError({
                 alignItems: 'center',
                 bgcolor: 'background.paper'
             }}>
-            Unable to update auctions. Previous results are still shown.
+            <AlertTitle>
+                Unable to update auctions
+            </AlertTitle>
+
+            Previous results are still shown.
         </Alert>
     );
 }
