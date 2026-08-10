@@ -126,19 +126,31 @@ export default function AuctionGrid({
                 cellRenderer: ProductTypeCellRenderer
             },
             {
-                field: 'price',
-                headerName: 'Price',
-                width: 105,
-                minWidth: 100,
-                maxWidth: 115,
-                valueFormatter: ({ value }) =>
-                    formatPrice(value),
-                getQuickFilterText: ({ value }) =>
-                    value == null
-                        ? ''
-                        : formatPrice(value),
-                cellClass: 'tabular-numbers'
-            },
+				field: 'price',
+				headerName: 'Price',
+				width: 105,
+				minWidth: 100,
+				maxWidth: 115,
+				comparator: (
+					valueA,
+					valueB,
+					_nodeA,
+					_nodeB,
+					isDescending
+				) =>
+					compareNullableNumbers(
+						valueA,
+						valueB,
+						isDescending
+					),
+				valueFormatter: ({ value }) =>
+					formatPrice(value),
+				getQuickFilterText: ({ value }) =>
+					value == null
+						? ''
+						: formatPrice(value),
+				cellClass: 'tabular-numbers'
+			},
             {
                 field: 'curtainTimestamp',
                 headerName: 'Curtain',
@@ -166,18 +178,30 @@ export default function AuctionGrid({
                 cellClass: 'tabular-numbers'
             },
             {
-                field: 'conclusionTimestamp',
-                headerName: 'Conclusion',
-                flex: 1.2,
-                minWidth: 150,
-                valueFormatter: ({ value }) =>
-                    formatTimestamp(value),
-                getQuickFilterText: ({ value }) =>
-                    value == null
-                        ? ''
-                        : formatTimestamp(value),
-                cellClass: 'tabular-numbers'
-            }
+				field: 'conclusionTimestamp',
+				headerName: 'Conclusion',
+				flex: 1.2,
+				minWidth: 150,
+				comparator: (
+					valueA,
+					valueB,
+					_nodeA,
+					_nodeB,
+					isDescending
+				) =>
+					compareNullableNumbers(
+						valueA,
+						valueB,
+						isDescending
+					),
+				valueFormatter: ({ value }) =>
+					formatTimestamp(value),
+				getQuickFilterText: ({ value }) =>
+					value == null
+						? ''
+						: formatTimestamp(value),
+				cellClass: 'tabular-numbers'
+			}
         ],
         []
     );
@@ -307,4 +331,27 @@ function ProductTypeCellRenderer({
             }}
         />
     );
+}
+
+function compareNullableNumbers(
+    valueA: number | null | undefined,
+    valueB: number | null | undefined,
+    isDescending: boolean
+): number {
+    const aIsNull = valueA == null;
+    const bIsNull = valueB == null;
+
+    if (aIsNull && bIsNull) {
+        return 0;
+    }
+
+    if (aIsNull) {
+        return isDescending ? -1 : 1;
+    }
+
+    if (bIsNull) {
+        return isDescending ? 1 : -1;
+    }
+
+    return valueA - valueB;
 }
