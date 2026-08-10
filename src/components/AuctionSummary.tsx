@@ -69,241 +69,257 @@ export default function AuctionSummary({
     );
 
     return (
-    <Card
-        variant="outlined"
-        sx={{
-            bgcolor: 'background.paper',
-            borderColor: 'divider',
-            borderRadius: 2,
-            overflow: 'hidden'
-        }}>
-        <CardContent
+        <Card
+            variant="outlined"
             sx={{
-                p: 0,
-                '&:last-child': {
-                    pb: 0
-                }
+                bgcolor: 'background.paper',
+                borderColor: 'divider',
+                borderRadius: 2,
+                overflow: 'hidden'
             }}>
-            {/* top KPI row */}
-            <Box
+            <CardContent
                 sx={{
-                    display: 'grid',
-                    gridTemplateColumns: {
-                        xs: 'repeat(2, minmax(0, 1fr))',
-                        md: 'repeat(4, minmax(0, 1fr))'
-                    },
-                    px: 1.5,
-                    py: 1
-                }}>
-                <MetricSlot isLast={false}>
-                    {isLoading ? (
-                        <MetricSkeleton />
-                    ) : (
-                        <SummaryMetric
-                            icon={<GavelRounded />}
-                            label="Total Auctions"
-                            value={formatNumber(stats.totalAuctions)}
-                            color={theme.kpi.auctions}
-                        />
-                    )}
-                </MetricSlot>
-
-                <MetricSlot isLast={false}>
-                    {isLoading ? (
-                        <MetricSkeleton />
-                    ) : (
-                        <SummaryMetric
-                            icon={<BarChartRounded />}
-                            label="Total Size"
-                            value={formatCompactNumber(stats.totalSize)}
-                            color={theme.kpi.size}
-                        />
-                    )}
-                </MetricSlot>
-
-                <MetricSlot isLast={false}>
-                    {isLoading ? (
-                        <MetricSkeleton />
-                    ) : (
-                        <SummaryMetric
-                            icon={<AttachMoneyRounded />}
-                            label="Avg Price"
-                            value={
-                                hasAuctions
-                                    ? formatPrice(stats.averagePrice)
-                                    : '—'
-                            }
-                            color={theme.kpi.price}
-                        />
-                    )}
-                </MetricSlot>
-
-                <MetricSlot isLast>
-                    {isLoading ? (
-                        <MetricSkeleton />
-                    ) : (
-                        <SummaryMetric
-                            icon={<EqualizerRounded />}
-                            label="Avg Size"
-                            value={
-                                hasAuctions
-                                    ? formatNumber(Math.round(stats.averageSize))
-                                    : '—'
-                            }
-                            color={theme.kpi.averageSize}
-                        />
-                    )}
-                </MetricSlot>
-            </Box>
-
-            <Divider />
-
-            {/* lower analytics row */}
-            <Box
-                sx={{
-                    display: 'grid',
-                    gridTemplateColumns: {
-                        xs: '1fr',
-                        md: '0.9fr 0.9fr 1.4fr'
+                    p: 0,
+                    '&:last-child': {
+                        pb: 0
                     }
                 }}>
-                <BreakdownPanel
-                    title="Side Breakdown"
-                    qualifier="By size"
-                    tooltip="Compares total auction size on the Bid and Offer sides, highlighting where auction activity is concentrated.">
-                    {isLoading ? (
-                        <BreakdownSkeleton />
-                    ) : (
-                        <DonutBreakdown
-                            percentage={bidSizePercentage}
-                            isEmpty={!hasSize}
-                            primaryColor={theme.dataViz.bid}
-                            secondaryColor={theme.dataViz.offer}
-                            primary={
-                                <LegendEntry
-                                    color={theme.dataViz.bid}
-                                    label="Bid"
-                                    percentage={
-                                        hasSize
-                                            ? bidSizePercentage
-                                            : null
-                                    }
-                                    size={stats.bidSize}
-                                    count={stats.bidCount}
-                                />
-                            }
-                            secondary={
-                                <LegendEntry
-                                    color={theme.dataViz.offer}
-                                    label="Offer"
-                                    percentage={
-                                        hasSize
-                                            ? offerSizePercentage
-                                            : null
-                                    }
-                                    size={stats.offerSize}
-                                    count={stats.offerCount}
-                                />
-                            }
-                        />
-                    )}
-                </BreakdownPanel>
+                {/* top KPI row */}
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gridTemplateColumns: {
+                            xs: 'repeat(2, minmax(0, 1fr))',
+                            md: 'repeat(4, minmax(0, 1fr))'
+                        },
+                        px: 1.5,
+                        py: 1
+                    }}>
+                    <MetricSlot isLast={false}>
+                        {isLoading ? (
+                            <MetricSkeleton />
+                        ) : (
+                            <SummaryMetric
+                                icon={<GavelRounded />}
+                                label="Total Auctions"
+                                value={formatNumber(stats.totalAuctions)}
+                                color={theme.kpi.auctions}
+                            />
+                        )}
+                    </MetricSlot>
 
-                <BreakdownPanel
-                    title="Product Breakdown"
-                    qualifier="By count"
-                    tooltip="Shows the mix of Corporate and Municipal auctions, giving a quick view of where current opportunities are concentrated."
-                    divider>
-                    {isLoading ? (
-                        <BreakdownSkeleton />
-                    ) : (
-                        <DonutBreakdown
-                            percentage={corporateCountPercentage}
-                            isEmpty={!hasAuctions}
-                            primaryColor={theme.dataViz.corporate}
-                            secondaryColor={theme.dataViz.municipal}
-                            primary={
-                                <LegendEntry
-                                    color={theme.dataViz.corporate}
-                                    label="Corporate"
-                                    percentage={
-                                        hasAuctions
-                                            ? corporateCountPercentage
-                                            : null
-                                    }
-                                    size={stats.corporateSize}
-                                    count={stats.corporateCount}
-                                />
-                            }
-                            secondary={
-                                <LegendEntry
-                                    color={theme.dataViz.municipal}
-                                    label="Municipal"
-                                    percentage={
-                                        hasAuctions
-                                            ? municipalCountPercentage
-                                            : null
-                                    }
-                                    size={stats.municipalSize}
-                                    count={stats.municipalCount}
-                                />
-                            }
-                        />
-                    )}
-                </BreakdownPanel>
+                    <MetricSlot isLast={false}>
+                        {isLoading ? (
+                            <MetricSkeleton />
+                        ) : (
+                            <SummaryMetric
+                                icon={<BarChartRounded />}
+                                label="Total Size"
+                                value={formatCompactNumber(stats.totalSize)}
+                                color={theme.kpi.size}
+                            />
+                        )}
+                    </MetricSlot>
 
-                <BreakdownPanel
-                    title="Status"
-                    tooltip="Shows where auctions are in their lifecycle, helping distinguish upcoming and active opportunities from completed or expired auctions."
-                    divider>
-                    {isLoading ? (
-                        <StatusSkeleton />
-                    ) : (
+                    <MetricSlot isLast={false}>
+                        {isLoading ? (
+                            <MetricSkeleton />
+                        ) : (
+                            <SummaryMetric
+                                icon={<AttachMoneyRounded />}
+                                label="Avg Price"
+                                value={
+                                    hasAuctions
+                                        ? formatPrice(stats.averagePrice)
+                                        : '—'
+                                }
+                                color={theme.kpi.price}
+                            />
+                        )}
+                    </MetricSlot>
+
+                    <MetricSlot isLast>
+                        {isLoading ? (
+                            <MetricSkeleton />
+                        ) : (
+                            <SummaryMetric
+                                icon={<EqualizerRounded />}
+                                label="Avg Size"
+                                value={
+                                    hasAuctions
+                                        ? formatNumber(Math.round(stats.averageSize))
+                                        : '—'
+                                }
+                                color={theme.kpi.averageSize}
+                            />
+                        )}
+                    </MetricSlot>
+                </Box>
+
+                {/* lower analytics only shown on medium screens and larger */}
+                <Box
+                    sx={{
+                        display: {
+                            xs: 'none',
+                            md: 'block'
+                        }
+                    }}>
+                    <Divider />
+
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gridTemplateColumns: {
+                                md: 'repeat(2, minmax(0, 1fr))',
+                                lg: '0.9fr 0.9fr 1.4fr'
+                            }
+                        }}>
+                        <BreakdownPanel
+                            title="Side Breakdown"
+                            qualifier="By size"
+                            tooltip="Compares total auction size on the Bid and Offer sides, highlighting where auction activity is concentrated.">
+                            {isLoading ? (
+                                <BreakdownSkeleton />
+                            ) : (
+                                <DonutBreakdown
+                                    percentage={bidSizePercentage}
+                                    isEmpty={!hasSize}
+                                    primaryColor={theme.dataViz.bid}
+                                    secondaryColor={theme.dataViz.offer}
+                                    primary={
+                                        <LegendEntry
+                                            color={theme.dataViz.bid}
+                                            label="Bid"
+                                            percentage={
+                                                hasSize
+                                                    ? bidSizePercentage
+                                                    : null
+                                            }
+                                            size={stats.bidSize}
+                                            count={stats.bidCount}
+                                        />
+                                    }
+                                    secondary={
+                                        <LegendEntry
+                                            color={theme.dataViz.offer}
+                                            label="Offer"
+                                            percentage={
+                                                hasSize
+                                                    ? offerSizePercentage
+                                                    : null
+                                            }
+                                            size={stats.offerSize}
+                                            count={stats.offerCount}
+                                        />
+                                    }
+                                />
+                            )}
+                        </BreakdownPanel>
+
+                        <BreakdownPanel
+                            title="Product Breakdown"
+                            qualifier="By count"
+                            tooltip="Shows the mix of Corporate and Municipal auctions, giving a quick view of where current opportunities are concentrated."
+                            divider>
+                            {isLoading ? (
+                                <BreakdownSkeleton />
+                            ) : (
+                                <DonutBreakdown
+                                    percentage={corporateCountPercentage}
+                                    isEmpty={!hasAuctions}
+                                    primaryColor={theme.dataViz.corporate}
+                                    secondaryColor={theme.dataViz.municipal}
+                                    primary={
+                                        <LegendEntry
+                                            color={theme.dataViz.corporate}
+                                            label="Corporate"
+                                            percentage={
+                                                hasAuctions
+                                                    ? corporateCountPercentage
+                                                    : null
+                                            }
+                                            size={stats.corporateSize}
+                                            count={stats.corporateCount}
+                                        />
+                                    }
+                                    secondary={
+                                        <LegendEntry
+                                            color={theme.dataViz.municipal}
+                                            label="Municipal"
+                                            percentage={
+                                                hasAuctions
+                                                    ? municipalCountPercentage
+                                                    : null
+                                            }
+                                            size={stats.municipalSize}
+                                            count={stats.municipalCount}
+                                        />
+                                    }
+                                />
+                            )}
+                        </BreakdownPanel>
+
                         <Box
                             sx={{
-                                display: 'grid',
-                                gridTemplateColumns: {
-                                    xs: 'repeat(2, minmax(0, 1fr))',
-                                    sm: 'repeat(4, minmax(0, 1fr))'
-                                },
-                                columnGap: 1.75,
-                                minHeight: 58,
-                                alignItems: 'center'
+                                minWidth: 0,
+                                gridColumn: {
+                                    md: '1 / -1',
+                                    lg: 'auto'
+                                }
                             }}>
-                            <StatusMetric
-                                icon={<CalendarMonthRounded />}
-                                label="Upcoming"
-                                value={stats.upcomingCount}
-                                color={theme.dataViz.upcoming}
-                            />
+                            <BreakdownPanel
+                                title="Status"
+                                tooltip="Shows where auctions are in their lifecycle, helping distinguish upcoming and active opportunities from completed or expired auctions."
+                                divider
+                                dividerBreakpoint="lg">
+                                {isLoading ? (
+                                    <StatusSkeleton />
+                                ) : (
+                                    <Box
+                                        sx={{
+                                            display: 'grid',
+                                            gridTemplateColumns:
+                                                'repeat(4, minmax(0, 1fr))',
+                                            columnGap: 1.75,
+                                            minHeight: 58,
+                                            alignItems: 'center'
+                                        }}>
+                                        <StatusMetric
+                                            icon={<CalendarMonthRounded />}
+                                            label="Upcoming"
+                                            value={stats.upcomingCount}
+                                            color={theme.dataViz.upcoming}
+                                        />
 
-                            <StatusMetric
-                                icon={<PlayArrowRounded />}
-                                label="Active"
-                                value={stats.activeCount}
-                                color={theme.dataViz.active}
-                            />
+                                        <StatusMetric
+                                            icon={<PlayArrowRounded />}
+                                            label="Active"
+                                            value={stats.activeCount}
+                                            color={theme.dataViz.active}
+                                        />
 
-                            <StatusMetric
-                                icon={<CheckCircleOutlineRounded />}
-                                label="Concluded"
-                                value={stats.concludedCount}
-                                color={theme.dataViz.concluded}
-                            />
+                                        <StatusMetric
+                                            icon={<CheckCircleOutlineRounded />}
+                                            label="Concluded"
+                                            value={stats.concludedCount}
+                                            color={theme.dataViz.concluded}
+                                        />
 
-                            <StatusMetric
-                                icon={<ScheduleRounded />}
-                                label="Expired"
-                                value={stats.expiredCount}
-                                color={theme.dataViz.expired}
-                            />
+                                        <StatusMetric
+                                            icon={<ScheduleRounded />}
+                                            label="Expired"
+                                            value={stats.expiredCount}
+                                            color={theme.dataViz.expired}
+                                        />
+                                    </Box>
+                                )}
+                            </BreakdownPanel>
                         </Box>
-                    )}
-                </BreakdownPanel>
-            </Box>
-        </CardContent>
-    </Card>
-);
+                    </Box>
+                </Box>
+            </CardContent>
+        </Card>
+    );
 }
 
 interface SummaryMetricProps {
@@ -389,6 +405,7 @@ interface BreakdownPanelProps {
     tooltip: string;
     children: ReactNode;
     divider?: boolean;
+    dividerBreakpoint?: 'md' | 'lg';
 }
 
 function BreakdownPanel({
@@ -396,12 +413,16 @@ function BreakdownPanel({
     qualifier,
     tooltip,
     children,
-    divider = false
+    divider = false,
+    dividerBreakpoint = 'md'
 }: BreakdownPanelProps) {
+    const dividerStartsAtLg = dividerBreakpoint === 'lg';
+
     return (
         <Box
             sx={{
                 position: 'relative',
+                height: '100%',
                 px: {
                     xs: 2,
                     md: 2.5
@@ -414,7 +435,10 @@ function BreakdownPanel({
                         content: '""',
                         display: {
                             xs: 'none',
-                            md: 'block'
+                            md: dividerStartsAtLg
+                                ? 'none'
+                                : 'block',
+                            lg: 'block'
                         },
                         position: 'absolute',
                         left: 0,
@@ -426,8 +450,12 @@ function BreakdownPanel({
                 }),
 
                 borderTop: {
-                    xs: divider ? '1px solid' : 'none',
-                    md: 'none'
+                    xs: 'none',
+                    md:
+                        divider && dividerStartsAtLg
+                            ? '1px solid'
+                            : 'none',
+                    lg: 'none'
                 },
                 borderColor: 'divider'
             }}>
@@ -816,10 +844,7 @@ function StatusSkeleton() {
         <Box
             sx={{
                 display: 'grid',
-                gridTemplateColumns: {
-                    xs: 'repeat(2, minmax(0, 1fr))',
-                    sm: 'repeat(4, minmax(0, 1fr))'
-                },
+                gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
                 columnGap: 1.75,
                 minHeight: 58,
                 alignItems: 'center'
