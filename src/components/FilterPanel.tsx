@@ -575,10 +575,14 @@ function queryToDraft(
 function draftToQuery(
     draft: FilterDraft
 ): AuctionQuery {
-    const cusips = draft.cusips
-        .split(',')
-        .map((cusip) => cusip.trim())
-        .filter(Boolean);
+    const cusips = [
+        ...new Set(
+            draft.cusips
+                .split(',')
+                .map((cusip) => cusip.trim().toUpperCase())
+                .filter(Boolean)
+        )
+    ];
 
     return {
         ...(cusips.length > 0 && {
