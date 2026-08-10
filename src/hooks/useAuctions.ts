@@ -8,6 +8,7 @@ interface UseAuctionsResult {
     auctions: Auction[];
     isLoading: boolean;
     error: string | null;
+	lastUpdated: number | null;
     hasLoaded: boolean;
     refetch: () => void;
 }
@@ -18,6 +19,7 @@ export function useAuctions(
     const [auctions, setAuctions] = useState<Auction[]>([]);
     const [error, setError] = useState<string | null>(null);
 	const [hasLoaded, setHasLoaded] = useState(false);
+	const [lastUpdated, setLastUpdated] = useState<number | null>(null);
     const [resolvedQuery, setResolvedQuery] =
         useState<AuctionQuery | null>(null);
     const [requestVersion, setRequestVersion] = useState(0);
@@ -43,6 +45,7 @@ export function useAuctions(
                 setAuctions(response.data);
                 setError(null);
 				setHasLoaded(true);
+				setLastUpdated(Date.now());
             } catch (error) {
                 if (ignore) {
                     return;
@@ -72,6 +75,7 @@ export function useAuctions(
         isLoading,
         error,
 		hasLoaded,
+		lastUpdated,
         refetch
     };
 }
