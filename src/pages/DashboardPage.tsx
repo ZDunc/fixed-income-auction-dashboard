@@ -49,6 +49,9 @@ export default function DashboardPage() {
             ? 'Results unavailable'
             : undefined;
 
+    const hasAppliedFilters =
+        Object.keys(query).length > 0;
+
     const handleDrawerApply = (nextQuery: AuctionQuery) => {
         setQuery(nextQuery);
         setFiltersOpen(false);
@@ -142,6 +145,7 @@ export default function DashboardPage() {
                             <AuctionGrid
                                 auctions={auctions}
                                 isLoading={isLoading}
+                                hasAppliedFilters={hasAppliedFilters}
                                 onOpenFilters={
                                     showPermanentFilters
                                         ? undefined

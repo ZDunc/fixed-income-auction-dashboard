@@ -40,30 +40,33 @@ ModuleRegistry.registerModules([
 interface AuctionGridProps {
     auctions: Auction[];
     isLoading?: boolean;
+    hasAppliedFilters?: boolean;
     onOpenFilters?: () => void;
 }
 
 export default function AuctionGrid({
     auctions,
     isLoading = false,
+    hasAppliedFilters = false,
     onOpenFilters
 }: AuctionGridProps) {
     const [quickFilterText, setQuickFilterText] = useState('');
     const [displayedCount, setDisplayedCount] = useState(auctions.length);
 
 	const overlayComponentParams = useMemo(
-    () => ({
-        noRows: {
-            overlayText:
-                'No auctions match the applied filters. Try adjusting or clearing your filters.'
-        },
-        noMatchingRows: {
-            overlayText:
-                'No auctions match your search. Try another ID, CUSIP, value, or date/time.'
-        }
-    }),
-    []
-);
+		() => ({
+			noRows: {
+				overlayText: hasAppliedFilters
+					? 'No auctions match the applied filters. Try adjusting or clearing your filters.'
+					: 'No auctions are currently available.'
+			},
+			noMatchingRows: {
+				overlayText:
+					'No auctions match your search. Try a different search term.'
+			}
+		}),
+		[hasAppliedFilters]
+	);
 
     const defaultColDef = useMemo<ColDef<Auction>>(
         () => ({

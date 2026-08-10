@@ -171,11 +171,12 @@ export default function FilterPanel({
                                 lineHeight: 1.2
                             }}>
                             {statusText ??
-                                `${formatNumber(resultCount)} matching ${
-                                    resultCount === 1
-                                        ? 'auction'
-                                        : 'auctions'
-                                }`}
+                                `${formatNumber(resultCount)} ${
+                                    appliedFilterCount > 0
+                                        ? 'matching '
+                                        : ''
+                                }${resultCount === 1 ? 'auction' : 'auctions'}`
+                            }
                         </Typography>
                     </Box>
                 </Stack>
