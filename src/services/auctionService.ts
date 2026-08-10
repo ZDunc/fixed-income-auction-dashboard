@@ -1,3 +1,4 @@
+import type { Auction } from '../interfaces/Auction';
 import type { AuctionQuery } from '../interfaces/AuctionQuery';
 import type { AuctionResponse } from '../interfaces/AuctionResponse';
 
@@ -18,13 +19,22 @@ export async function getAuctions(
         throw new Error(`Failed to fetch auctions: ${response.status}`);
     }
 
-    const result = await response.json();
+    const result: unknown = await response.json();
 
     if (Array.isArray(result)) {
         return {
-        data: result,
+            data: result as Auction[]
         };
     }
 
-    return result;
+    if (
+        result &&
+        typeof result === 'object' &&
+        'data' in result &&
+        Array.isArray(result.data)
+    ) {
+        return result as AuctionResponse;
+    }
+
+    throw new Error('Unexpected API response format');
 }
