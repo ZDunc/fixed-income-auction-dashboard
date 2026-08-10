@@ -4,9 +4,20 @@ import type { Auction } from '../interfaces/Auction';
 import type { AuctionQuery } from '../interfaces/AuctionQuery';
 import { getAuctions } from '../services/auctionService';
 
-export function useAuctions(query: AuctionQuery) {
+interface UseAuctionsResult {
+    auctions: Auction[];
+    isLoading: boolean;
+    error: string | null;
+    hasLoaded: boolean;
+    refetch: () => void;
+}
+
+export function useAuctions(
+    query: AuctionQuery
+): UseAuctionsResult {
     const [auctions, setAuctions] = useState<Auction[]>([]);
     const [error, setError] = useState<string | null>(null);
+	const [hasLoaded, setHasLoaded] = useState(false);
     const [resolvedQuery, setResolvedQuery] =
         useState<AuctionQuery | null>(null);
     const [requestVersion, setRequestVersion] = useState(0);
@@ -31,6 +42,7 @@ export function useAuctions(query: AuctionQuery) {
 
                 setAuctions(response.data);
                 setError(null);
+				setHasLoaded(true);
             } catch (error) {
                 if (ignore) {
                     return;
@@ -59,6 +71,7 @@ export function useAuctions(query: AuctionQuery) {
         auctions,
         isLoading,
         error,
+		hasLoaded,
         refetch
     };
 }

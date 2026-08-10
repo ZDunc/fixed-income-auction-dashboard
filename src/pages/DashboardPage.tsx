@@ -30,19 +30,18 @@ export default function DashboardPage() {
         auctions,
         isLoading,
         error,
+        hasLoaded,
         refetch
     } = useAuctions(query);
 
-    const hasData = auctions.length > 0;
-
     const isInitialLoading =
-        isLoading && !hasData;
+        isLoading && !hasLoaded;
 
     const hasInitialError =
-        !isLoading && !!error && !hasData;
+        !isLoading && !!error && !hasLoaded;
 
     const hasRefreshError =
-        !isLoading && !!error && hasData;
+        !isLoading && !!error && hasLoaded;
 
     const filterStatusText = isLoading
         ? 'Loading auctions...'
@@ -91,7 +90,7 @@ export default function DashboardPage() {
                         lg: 'hidden'
                     }
                 }}>
-                {isLoading && hasData && (
+                {isLoading && hasLoaded && (
                     <LinearProgress
                         sx={{
                             position: 'absolute',
