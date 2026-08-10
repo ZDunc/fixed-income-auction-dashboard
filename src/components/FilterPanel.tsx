@@ -337,6 +337,9 @@ export default function FilterPanel({
                         minValue={draft.sizeMin}
                         maxValue={draft.sizeMax}
                         error={sizeRangeInvalid}
+                        min={0}
+                        step={1}
+                        maxDecimalPlaces={0}
                         onMinChange={(value) =>
                             setDraft((current) => ({
                                 ...current,
@@ -351,7 +354,6 @@ export default function FilterPanel({
                         }
                     />
                 </FilterSection>
-
                 <SectionDivider />
 
                 <FilterSection
@@ -363,6 +365,9 @@ export default function FilterPanel({
                         minValue={draft.priceMin}
                         maxValue={draft.priceMax}
                         error={priceRangeInvalid}
+                        min={0}
+                        step={0.01}
+                        maxDecimalPlaces={2}
                         onMinChange={(value) =>
                             setDraft((current) => ({
                                 ...current,
@@ -502,6 +507,9 @@ interface RangeFieldsProps {
     error: boolean;
     onMinChange: (value: string) => void;
     onMaxChange: (value: string) => void;
+    min?: number;
+    step?: number | 'any';
+    maxDecimalPlaces?: number;
 }
 
 function RangeFields({
@@ -510,9 +518,27 @@ function RangeFields({
     minValue,
     maxValue,
     error,
+    min = 0,
+    step,
+    maxDecimalPlaces,
     onMinChange,
     onMaxChange
 }: RangeFieldsProps) {
+    const handleChange = (
+        value: string,
+        onChange: (value: string) => void
+    ) => {
+        if (
+            isValidNumericInput(
+                value,
+                min,
+                maxDecimalPlaces
+            )
+        ) {
+            onChange(value);
+        }
+    };
+
     return (
         <Box
             sx={{
@@ -526,10 +552,19 @@ function RangeFields({
                 size="small"
                 fullWidth
                 value={minValue}
-                error={error}
                 onChange={(event) =>
-                    onMinChange(event.target.value)
+                    handleChange(
+                        event.target.value,
+                        onMinChange
+                    )
                 }
+                error={error}
+                slotProps={{
+                    htmlInput: {
+                        min,
+                        step
+                    }
+                }}
             />
 
             <TextField
@@ -538,15 +573,24 @@ function RangeFields({
                 size="small"
                 fullWidth
                 value={maxValue}
+                onChange={(event) =>
+                    handleChange(
+                        event.target.value,
+                        onMaxChange
+                    )
+                }
                 error={error}
                 helperText={
                     error
                         ? 'Max must be greater than or equal to min'
                         : undefined
                 }
-                onChange={(event) =>
-                    onMaxChange(event.target.value)
-                }
+                slotProps={{
+                    htmlInput: {
+                        min,
+                        step
+                    }
+                }}
             />
         </Box>
     );
@@ -641,4 +685,32 @@ function countActiveFilters(draft: FilterDraft): number {
     if (draft.priceMin || draft.priceMax) count += 1;
 
     return count;
+}
+
+function isValidNumericInput(
+    value: string,
+    min: number,
+    maxDecimalPlaces?: number
+): boolean {
+    if (value === '') {
+        return true;
+    }
+
+    const decimalPattern =
+        maxDecimalPlaces === undefined
+            ? /^\d+(\.\d*)?$/
+            : new RegExp(
+                `^\\d+(\\.\\d{0,${maxDecimalPlaces}})?$`
+            );
+
+    if (!decimalPattern.test(value)) {
+        return false;
+    }
+
+    const numericValue = Number(value);
+
+    return (
+        Number.isFinite(numericValue) &&
+        numericValue >= min
+    );
 }
