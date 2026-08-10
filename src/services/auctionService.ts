@@ -7,16 +7,24 @@ const API_URL = import.meta.env.VITE_API_URL;
 export async function getAuctions(
     query: AuctionQuery = {}
 ): Promise<AuctionResponse> {
+    if (!API_URL) {
+        throw new Error(
+            'VITE_API_URL is not configured'
+        );
+    }
+
     const response = await fetch(`${API_URL}/api/data`, {
         method: 'POST',
         headers: {
-        'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
         },
-        body: JSON.stringify(query),
+        body: JSON.stringify(query)
     });
 
     if (!response.ok) {
-        throw new Error(`Failed to fetch auctions: ${response.status}`);
+        throw new Error(
+            `Failed to fetch auctions: ${response.status} ${response.statusText}`
+        );
     }
 
     const result: unknown = await response.json();
