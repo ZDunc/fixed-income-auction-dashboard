@@ -92,6 +92,10 @@ export default function AuctionSummary({
                             xs: 'repeat(2, minmax(0, 1fr))',
                             md: 'repeat(4, minmax(0, 1fr))'
                         },
+                        rowGap: {
+                            xs: 1.25,
+                            md: 0
+                        },
                         px: 1.5,
                         py: 1
                     }}>
@@ -340,9 +344,13 @@ function SummaryMetric({
             direction="row"
             spacing={1.25}
             sx={{
+                width: '100%',
+                minWidth: 0,
                 alignItems: 'center',
-                justifyContent: 'center',
-                minWidth: 0
+                justifyContent: {
+                    xs: 'flex-start',
+                    md: 'center'
+                }
             }}>
             <Box
                 sx={{
@@ -393,6 +401,7 @@ function SummaryMetric({
         </Stack>
     );
 }
+
 interface BreakdownPanelProps {
     title: string;
     qualifier?: string;
@@ -739,7 +748,10 @@ function MetricSlot({
             sx={{
                 position: 'relative',
                 minWidth: 0,
-                px: 2,
+                px: {
+                    xs: 1.25,
+                    md: 2
+                },
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
