@@ -1,4 +1,5 @@
 import type { Auction } from '../interfaces/Auction';
+import { NANOSECONDS_PER_MILLISECOND } from './formatUtils';
 
 export interface AuctionStats {
     totalAuctions: number;
@@ -21,8 +22,6 @@ export interface AuctionStats {
     concludedCount: number;
     expiredCount: number;
 }
-
-const NANOSECONDS_PER_MILLISECOND = 1_000_000;
 
 export function getAuctionStats(
     auctions: Auction[],

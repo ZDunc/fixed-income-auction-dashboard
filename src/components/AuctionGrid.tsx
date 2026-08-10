@@ -146,9 +146,7 @@ export default function AuctionGrid({
 						isDescending
 					),
 				valueFormatter: ({ value }) =>
-					value == null
-						? '—'
-						: formatPrice(value),
+    				formatPrice(value),
 				getQuickFilterText: ({ value }) =>
 					value == null
 						? ''
@@ -200,9 +198,7 @@ export default function AuctionGrid({
 						isDescending
 					),
 				valueFormatter: ({ value }) =>
-					value == null
-						? '—'
-						: formatTimestamp(value),
+    				formatTimestamp(value),
 				getQuickFilterText: ({ value }) =>
 					value == null
 						? ''
