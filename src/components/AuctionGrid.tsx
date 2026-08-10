@@ -262,7 +262,6 @@ export default function AuctionGrid({
                         50,
                         100
                     ]}
-                    alwaysShowVerticalScroll
                     quickFilterText={quickFilterText}
                     overlayComponentParams={overlayComponentParams}
                     onFilterChanged={(event) =>
@@ -288,6 +287,12 @@ function SideCellRenderer({
 
     if (!value) {
         return null;
+    }
+
+    if (value === 'Invalid') {
+        return (
+            <UnknownChip />
+        );
     }
 
     const color =
@@ -320,6 +325,12 @@ function ProductTypeCellRenderer({
         return null;
     }
 
+    if (value === 'Invalid') {
+        return (
+            <UnknownChip />
+        );
+    }
+
     const color =
         value === 'Corporate'
             ? theme.dataViz.corporate
@@ -333,6 +344,28 @@ function ProductTypeCellRenderer({
                 height: 21,
                 color,
                 bgcolor: alpha(color, 0.10),
+                borderRadius: 1.5,
+                fontSize: '0.72rem',
+                fontWeight: 700
+            }}
+        />
+    );
+}
+
+function UnknownChip() {
+    const theme = useTheme();
+
+    return (
+        <Chip
+            label="Unknown"
+            size="small"
+            sx={{
+                height: 21,
+                color: 'text.secondary',
+                bgcolor: alpha(
+                    theme.palette.text.secondary,
+                    0.08
+                ),
                 borderRadius: 1.5,
                 fontSize: '0.72rem',
                 fontWeight: 700
