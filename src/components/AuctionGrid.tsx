@@ -127,7 +127,7 @@ export default function AuctionGrid({
                 minWidth: 125,
                 cellRenderer: ProductTypeCellRenderer
             },
-            {
+			{
 				field: 'price',
 				headerName: 'Price',
 				width: 105,
@@ -146,7 +146,9 @@ export default function AuctionGrid({
 						isDescending
 					),
 				valueFormatter: ({ value }) =>
-					formatPrice(value),
+					value == null
+						? '—'
+						: formatPrice(value),
 				getQuickFilterText: ({ value }) =>
 					value == null
 						? ''
@@ -154,18 +156,19 @@ export default function AuctionGrid({
 				cellClass: 'tabular-numbers'
 			},
             {
-                field: 'curtainTimestamp',
-                headerName: 'Curtain',
-                flex: 1.2,
-                minWidth: 150,
-                valueFormatter: ({ value }) =>
-                    formatTimestamp(value),
-                getQuickFilterText: ({ value }) =>
-                    value == null
-                        ? ''
-                        : formatTimestamp(value),
-                cellClass: 'tabular-numbers'
-            },
+				field: 'curtainTimestamp',
+				headerName: 'Curtain',
+				flex: 1.2,
+				minWidth: 150,
+				initialSort: 'asc',
+				valueFormatter: ({ value }) =>
+					formatTimestamp(value),
+				getQuickFilterText: ({ value }) =>
+					value == null
+						? ''
+						: formatTimestamp(value),
+				cellClass: 'tabular-numbers'
+			},
             {
                 field: 'expirationTimestamp',
                 headerName: 'Expiration',
@@ -179,7 +182,7 @@ export default function AuctionGrid({
                         : formatTimestamp(value),
                 cellClass: 'tabular-numbers'
             },
-            {
+			{
 				field: 'conclusionTimestamp',
 				headerName: 'Conclusion',
 				flex: 1.2,
@@ -197,7 +200,9 @@ export default function AuctionGrid({
 						isDescending
 					),
 				valueFormatter: ({ value }) =>
-					formatTimestamp(value),
+					value == null
+						? '—'
+						: formatTimestamp(value),
 				getQuickFilterText: ({ value }) =>
 					value == null
 						? ''
