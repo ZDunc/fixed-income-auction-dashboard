@@ -336,43 +336,38 @@ function SummaryMetric({
     color
 }: SummaryMetricProps) {
     return (
-        <Box
+        <Stack
+            direction="row"
+            spacing={1.25}
             sx={{
-                width: '100%',
-                display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 minWidth: 0
             }}>
-            <Stack
-                direction="row"
-                spacing={1}
+            <Box
                 sx={{
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}>
-                <Box
-                    sx={{
-                        width: 26,
-                        height: 26,
-                        flexShrink: 0,
-                        borderRadius: 1.5,
-                        display: 'grid',
-                        placeItems: 'center',
-                        bgcolor: alpha(color, 0.08),
-                        color,
-                        '& svg': {
-                            fontSize: 16
-                        }
-                    }}>
-                    {icon}
-                </Box>
+                    width: 30,
+                    height: 30,
+                    flexShrink: 0,
+                    borderRadius: 1.5,
+                    display: 'grid',
+                    placeItems: 'center',
+                    bgcolor: alpha(color, 0.08),
+                    color,
 
+                    '& svg': {
+                        fontSize: 17
+                    }
+                }}>
+                {icon}
+            </Box>
+
+            <Box sx={{ minWidth: 0 }}>
                 <Typography
                     variant="caption"
                     color="text.secondary"
                     sx={{
+                        display: 'block',
                         fontWeight: 700,
                         textTransform: 'uppercase',
                         letterSpacing: '0.035em',
@@ -381,24 +376,23 @@ function SummaryMetric({
                     }}>
                     {label}
                 </Typography>
-            </Stack>
 
-            <Typography
-                sx={{
-                    mt: 0.35,
-                    fontSize: '1.3rem',
-                    fontWeight: 700,
-                    letterSpacing: '-0.02em',
-                    lineHeight: 1,
-                    whiteSpace: 'nowrap',
-                    fontVariantNumeric: 'tabular-nums'
-                }}>
-                {value}
-            </Typography>
-        </Box>
+                <Typography
+                    sx={{
+                        mt: 0.45,
+                        fontSize: '1.3rem',
+                        fontWeight: 700,
+                        letterSpacing: '-0.02em',
+                        lineHeight: 1,
+                        whiteSpace: 'nowrap',
+                        fontVariantNumeric: 'tabular-nums'
+                    }}>
+                    {value}
+                </Typography>
+            </Box>
+        </Stack>
     );
 }
-
 interface BreakdownPanelProps {
     title: string;
     qualifier?: string;
