@@ -2,86 +2,117 @@
 
 ## Structure
 
-- Keep pages responsible for composing components and coordinating application state.
-- Keep UI components separate from API communication.
-- Use custom hooks to manage data fetching and related loading/error state.
-- Keep reusable formatting and calculation helpers in `utils/`.
-- Keep the architecture lightweight for the scope of the application rather than introducing additional state-management or data-fetching libraries.
+The application is intentionally structured around a small set of clear responsibilities:
 
-## API
+- Pages compose components and coordinate application state.
+- UI components remain separate from data-access concerns.
+- Custom hooks manage data retrieval and related loading, error, refresh, and last-updated state.
+- Reusable formatting, filtering, and calculation logic lives in `utils/`.
+- API and data-source concerns are isolated in `services/`.
+- Domain models live in `interfaces/`, with shared union types in `types/`.
 
-- Handle API communication in `services/`.
-- Keep API/domain models in `interfaces/` and shared union types in `types/`.
-- Normalize API responses in the service layer before passing data to the rest of the application. The auction endpoint can return either a raw array or a paginated response object, so the service exposes a consistent response shape to the UI.
-- Use native `fetch` rather than adding another HTTP dependency.
-- Configure the API base URL through `VITE_API_URL`.
+The architecture is kept lightweight for the scope of the application rather than introducing additional state-management or server-state libraries without a clear need.
+
+## Data Layer
+
+The public portfolio version uses a synthetic local auction dataset so the application can run independently without external infrastructure.
+
+`auctionService` remains the boundary between the UI and the underlying data source. The active implementation passes the current `AuctionQuery` through local filtering logic and returns the resulting dataset using the same response shape expected by the rest of the application.
+
+This preserves the separation between data access and UI behavior while allowing the application to remain fully functional as a standalone project.
+
+The application was originally designed to consume auction data from a remote API. An API-backed implementation is retained in the service layer for reference. That implementation demonstrates:
+
+- Environment-based API configuration through `VITE_API_URL`.
+- POST-based query submission.
+- Native `fetch` usage without an additional HTTP dependency.
+- HTTP error handling.
+- Defensive normalization of either a raw auction array or a response object into a consistent application response shape.
+
+Because the public version no longer depends on an external service, no API configuration is required to run the application.
 
 ## Data Flow and Pagination
 
-The dashboard maintains the currently applied auction query and passes it to `useAuctions`.
+`DashboardPage` owns the currently applied `AuctionQuery` and passes it to `useAuctions`.
 
-`useAuctions` retrieves the complete matching auction dataset and exposes the data along with loading, error, refresh, and last-updated state.
+`useAuctions` retrieves the complete matching auction dataset through the service layer and exposes:
+
+- Auction data
+- Loading state
+- Error state
+- Refresh behavior
+- Last-updated state
 
 The same returned dataset is then used by both:
 
-- `AuctionSummary`, which calculates totals and breakdowns across all matching auctions.
+- `AuctionSummary`, which calculates totals and categorical breakdowns across all matching auctions.
 - `AuctionGrid`, which provides client-side pagination, sorting, and quick search.
 
-The API supports server-side pagination, but the application intentionally does not use it for the current dataset.
+This shared dataset is an intentional architectural decision. Summary statistics represent the complete filtered result set rather than only the currently visible grid page, keeping the analytics and underlying auction data consistent.
 
-The dashboard requirement states that summary values should represent the entire filtered dataset. The API does not provide a separate aggregate/summary endpoint, so requesting only one server-side page would leave the client without enough information to calculate total size, average price, side/product breakdowns, and lifecycle counts across all matching auctions.
+The original remote API supported server-side pagination. I intentionally chose not to use it because the application also needed summary statistics across the entire filtered dataset, while the API did not expose a separate aggregation endpoint. Fetching only a single page would therefore have left the client without enough information to calculate total size, average price, side and product breakdowns, and lifecycle counts correctly.
 
-Fetching the complete filtered dataset once also allows AG Grid to provide consistent pagination, sorting, and quick search across the same set of auctions used by the summary.
+For the current dataset size, operating on the complete filtered dataset also allows AG Grid to provide pagination, sorting, and quick search without additional data requests.
 
-Given the current dataset size, this keeps the implementation simple and ensures the summary and grid remain consistent.
-
-For a substantially larger dataset, I would change the architecture to use:
+For a substantially larger production dataset, I would instead use:
 
 - Server-side pagination and sorting for grid data.
-- A separate aggregate endpoint for summary statistics.
-- Server-supported search when searching across the entire result set.
+- A dedicated aggregate endpoint for summary statistics.
+- Server-supported global search.
+- A live data transport for real-time auction updates.
 
-This would allow the grid to scale without requiring the browser to download the complete filtered dataset.
+This would allow the interface to scale without requiring the browser to hold the complete filtered result set.
 
 ## Rendering and Memoization
 
 Rendering and memoization are used selectively rather than applied to every calculation or callback.
 
-The main goal is to keep frequently rendered data-heavy components stable while avoiding unnecessary optimization of inexpensive operations.
+The goal is to optimize work where it provides a clear benefit while avoiding unnecessary memoization of inexpensive operations.
 
-- `AuctionGrid` memoizes its column definitions and default column configuration. These objects are passed directly to AG Grid, so keeping their references stable avoids unnecessary grid configuration updates during normal React re-renders.
-- `AuctionSummary` memoizes the derived auction statistics. Summary calculations iterate over the complete filtered dataset and are recalculated only when the auction data or current lifecycle time changes.
-- The summary recalculates auction lifecycle status as the current time changes. This allows time-based transitions such as Upcoming → Active → Expired, as well as Concluded when a qualifying conclusion timestamp is already present, without refetching the dataset.
-- Lightweight calculations, such as counting active filters, are intentionally not memoized because the cost of recomputing them is lower than the additional memoization complexity.
-- Fixed `Intl.NumberFormat` instances are reused for frequently rendered numeric and price values rather than recreated for every grid cell formatting operation.
-- Grid pagination, sorting, and quick search operate against the already loaded filtered dataset, avoiding additional network requests for normal table interactions.
-- During subsequent API requests, previously loaded summary data remains rendered rather than being replaced by loading placeholders. This reduces visual churn while still allowing the grid to communicate that its data is refreshing.
+- `AuctionGrid` memoizes its column definitions and default column configuration. These objects are passed directly to AG Grid, so preserving their references avoids unnecessary grid configuration updates during normal React re-renders.
+- `AuctionSummary` memoizes derived auction statistics. The calculations iterate over the complete filtered dataset and are recalculated only when the auction data or current lifecycle time changes.
+- Auction lifecycle statistics intentionally recalculate as time changes so auctions can transition between Upcoming, Active, Expired, and Concluded states without requiring the underlying dataset to be retrieved again.
+- Lightweight calculations, such as counting active filters, are intentionally not memoized because recomputing them is less expensive than introducing unnecessary memoization.
+- Fixed `Intl.NumberFormat` instances are reused for frequently rendered price and numeric values rather than recreated for individual formatting operations.
+- Grid pagination, sorting, and quick search operate against the already loaded filtered dataset.
+- When refreshed data is being retrieved, previously loaded summary data can remain visible rather than being immediately replaced by loading placeholders, reducing visual churn.
 
-The application does not use `React.memo`, `useCallback`, or `useMemo` by default. These tools are introduced only where stable references or non-trivial derived calculations provide a clear benefit.
+The application does not use `React.memo`, `useCallback`, or `useMemo` by default. These tools are introduced only when expensive derived work or reference stability provides a clear benefit.
 
 ## Loading and Error States
 
-The UI distinguishes between the initial request and later refreshes:
+The data-fetching architecture distinguishes between the initial load and later refreshes:
 
 - Initial loading uses summary skeletons and the grid loading state.
 - An initial failure replaces the dashboard content with an error state and retry action.
 - A failure after data has already loaded preserves the previous results and displays a non-destructive refresh error.
 - Successful empty responses are treated as valid results rather than loading or error states.
-- Older in-flight requests are prevented from overwriting results from newer queries.
+- Older in-flight asynchronous operations are prevented from overwriting results from newer queries.
+
+The current local dataset does not depend on network availability, but these states are retained because the data layer was designed to support an asynchronous remote source without requiring the UI architecture to change.
 
 ## Filters
 
 Filter controls maintain a local draft so users can edit multiple values before applying them.
 
-When filters are applied, the draft is converted into a sparse `AuctionQuery`. Empty controls are omitted, meaning an empty query object represents the unfiltered dataset.
+When filters are applied, the draft is converted into a sparse `AuctionQuery`. Empty controls are omitted, meaning an empty query object represents the complete dataset.
 
-CUSIPs are normalized before being sent to the API by trimming whitespace, converting to uppercase, removing empty values, and removing duplicates.
+CUSIP values are normalized by:
+
+- Trimming whitespace.
+- Converting values to uppercase.
+- Removing empty entries.
+- Removing duplicates.
+
+The query is then passed through the service layer, where the portfolio implementation applies the filters to the synthetic dataset.
+
+Filtering uses AND logic across different filter categories and OR logic within multi-select categories. For example, selecting both Bid and Offer while filtering to Corporate auctions accepts either side but still requires the auction to be Corporate.
 
 On larger screens, filters are displayed in a permanent side panel. On smaller screens, the same filter component is presented in a temporary drawer.
 
 ## Auction Status
 
-Auction lifecycle status is derived from the supplied curtain, expiration, and conclusion timestamps.
+Auction lifecycle status is derived from curtain, expiration, and conclusion timestamps.
 
 Auctions are classified as:
 
@@ -90,17 +121,35 @@ Auctions are classified as:
 - Concluded
 - Expired
 
-The current time is updated periodically so the summary can reflect lifecycle changes without requiring another API request.
+The current time is updated periodically so lifecycle statistics can change while the application remains open.
+
+This allows time-driven transitions such as Upcoming → Active → Expired, as well as Concluded when a qualifying conclusion timestamp is already present, without requiring the dataset to be retrieved again.
+
+## Grid and Virtualization
+
+AG Grid provides the primary data-table experience.
+
+The grid supports:
+
+- Client-side pagination.
+- Column sorting.
+- Quick search across displayed auction values.
+- Custom formatting for prices and timestamps.
+- Nullable-value handling.
+- Initial auction-time sorting.
+- Responsive horizontal overflow where necessary.
+
+AG Grid also virtualizes rendered rows and columns. This keeps the number of DOM elements tied primarily to the visible viewport rather than the total dataset size, which helps maintain responsive rendering as the amount of available data grows.
 
 ## Navigation
 
 React Router is used for application routing.
 
-The current application contains a single dashboard route, so the routing configuration is intentionally minimal while leaving room for additional pages if the application expands.
+The current application contains a single dashboard route, so routing is intentionally minimal while leaving a conventional structure in place for future pages.
 
 ## Design System
 
-MUI provides the application layout, controls, typography, and component styling.
+Material UI provides the application layout, controls, typography, and component styling.
 
 A centralized theme defines:
 
@@ -111,19 +160,20 @@ A centralized theme defines:
 - Data visualization colors
 - Shared input, button, card, and toggle styling
 
-AG Grid uses a separate grid theme derived from the same application color system so the grid remains visually consistent with the MUI interface.
+AG Grid uses a separate grid theme derived from the same application color system so the grid remains visually consistent with the surrounding Material UI components.
 
-The UI is designed as a compact, information-dense workstation while keeping data categories visually distinct and avoiding unnecessary decorative elements.
+The interface is designed as a compact, information-dense trading workstation. Visual hierarchy, spacing, typography, and categorical color are used to make large amounts of auction information scannable without adding unnecessary decorative elements.
 
 ## Future Enhancements
 
-For a larger production application, I would consider:
+For a larger production trading application, I would consider:
 
-- Server-side pagination, sorting, and dedicated summary aggregation for larger datasets.
-- Server-supported global search when data is no longer loaded entirely in the client.
-- Request cancellation/deduplication or a server-state caching library for more complex data-fetching needs.
-    (This came to my attention upon observing a duplicate api call on page load as a result of StrictMode.)
+- Live WebSocket or similar event-driven updates for changing auction and market data.
+- Server-side pagination and sorting for substantially larger datasets.
+- A dedicated summary aggregation endpoint so analytics do not require the complete filtered dataset.
+- Server-supported global search.
+- Request cancellation, deduplication, and server-state caching for more complex remote-data workflows.
 - More visible active-filter state on compact layouts when the filter drawer is closed.
-- Accessibility review, including keyboard and screen-reader behavior.
-- Additional auction timing/status controls if workflow requirements expand.
-- Richer fixed-income analytics if additional security data becomes available from the API.
+- A deeper accessibility review covering keyboard navigation, focus management, and screen-reader behavior.
+- Additional auction timing and status controls as workflow requirements expand.
+- Richer fixed-income analytics if additional security and market data becomes available.

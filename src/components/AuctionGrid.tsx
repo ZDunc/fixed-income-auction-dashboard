@@ -250,6 +250,8 @@ export default function AuctionGrid({
                     columnDefs={columnDefs}
                     defaultColDef={defaultColDef}
                     loading={isLoading}
+					//cellSelection
+					enableCellTextSelection
                     pagination
                     paginationPageSize={25}
                     paginationPageSizeSelector={[

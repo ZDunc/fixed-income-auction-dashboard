@@ -35,7 +35,7 @@ export default function Header() {
                         fontWeight: 700,
                         fontSize: '1.05rem'
                     }}>
-                    Auction Dashboard
+                    Fixed Income Auction Dashboard
                 </Typography>
             </Toolbar>
         </AppBar>
