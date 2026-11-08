@@ -1,4 +1,7 @@
-import { useState, type ReactNode } from 'react';
+import {
+    useState,
+    type ReactNode
+} from 'react';
 
 import AttachMoneyRounded from '@mui/icons-material/AttachMoneyRounded';
 import CategoryOutlined from '@mui/icons-material/CategoryOutlined';
@@ -22,12 +25,18 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Typography from '@mui/material/Typography';
 
 import type { AuctionQuery } from '../interfaces/AuctionQuery';
-import type { ProductType, Side } from '../types/AuctionTypes';
+
+import type {
+    ProductType,
+    Side
+} from '../types/AuctionTypes';
+
 import { formatNumber } from '../utils/formatUtils';
 
 interface FilterPanelProps {
     query: AuctionQuery;
     onApply: (query: AuctionQuery) => void;
+    onClose?: () => void;
     resultCount: number;
     statusText?: string;
     isLoading?: boolean;
@@ -58,6 +67,7 @@ const EMPTY_FILTERS: FilterDraft = {
 export default function FilterPanel({
     query,
     onApply,
+    onClose,
     resultCount,
     statusText,
     isLoading = false
@@ -76,26 +86,43 @@ export default function FilterPanel({
         draft.priceMax
     );
 
-    const draftFilterCount = countActiveFilters(draft);
+    const draftFilterCount =
+        countActiveFilters(draft);
 
-    const appliedFilterCount = countActiveFilters(
-        queryToDraft(query)
-    );
+    const appliedFilterCount =
+        countActiveFilters(
+            queryToDraft(query)
+        );
 
     const handleApply = () => {
-        if (sizeRangeInvalid || priceRangeInvalid) {
+        if (
+            sizeRangeInvalid ||
+            priceRangeInvalid
+        ) {
             return;
         }
 
-        const nextQuery = draftToQuery(draft);
+        const nextQuery =
+            draftToQuery(draft);
 
-        setDraft(queryToDraft(nextQuery));
+        setDraft(
+            queryToDraft(nextQuery)
+        );
+
         onApply(nextQuery);
     };
 
     const handleClear = () => {
         setDraft(EMPTY_FILTERS);
         onApply({});
+    };
+
+    const handleClose = () => {
+        setDraft(
+            queryToDraft(query)
+        );
+
+        onClose?.();
     };
 
     return (
@@ -169,7 +196,11 @@ export default function FilterPanel({
                                     appliedFilterCount > 0
                                         ? 'matching '
                                         : ''
-                                }${resultCount === 1 ? 'auction' : 'auctions'}`
+                                }${
+                                    resultCount === 1
+                                        ? 'auction'
+                                        : 'auctions'
+                                }`
                             }
                         </Typography>
                     </Box>
@@ -241,11 +272,15 @@ export default function FilterPanel({
                             fullWidth
                             value={draft.id}
                             onChange={(event) => {
-                                const value = event.target.value;
+                                const value =
+                                    event.target.value;
 
                                 if (
                                     value === '' ||
-                                    (/^\d+$/.test(value) && Number(value) >= 1)
+                                    (
+                                        /^\d+$/.test(value) &&
+                                        Number(value) >= 1
+                                    )
                                 ) {
                                     setDraft((current) => ({
                                         ...current,
@@ -299,7 +334,10 @@ export default function FilterPanel({
                     title="Product Type">
                     <ToggleButtonGroup
                         value={draft.productTypes}
-                        onChange={(_, value: ProductType[]) =>
+                        onChange={(
+                            _,
+                            value: ProductType[]
+                        ) =>
                             setDraft((current) => ({
                                 ...current,
                                 productTypes: value
@@ -382,12 +420,14 @@ export default function FilterPanel({
 
             <Divider />
 
-            {/* reset and apply */}
+            {/* reset, close and apply */}
             <Box
                 sx={{
                     p: 1.25,
                     display: 'grid',
-                    gridTemplateColumns: 'auto 1fr',
+                    gridTemplateColumns: onClose
+                        ? 'auto auto 1fr'
+                        : 'auto 1fr',
                     gap: 1,
                     flexShrink: 0,
                     bgcolor: 'background.paper'
@@ -408,6 +448,21 @@ export default function FilterPanel({
                     }}>
                     Clear
                 </Button>
+
+                {onClose && (
+                    <Button
+                        variant="outlined"
+                        color="inherit"
+                        onClick={handleClose}
+                        sx={{
+                            px: 1.25,
+                            borderColor: 'divider',
+                            textTransform: 'none',
+                            whiteSpace: 'nowrap'
+                        }}>
+                        Close
+                    </Button>
+                )}
 
                 <Button
                     variant="contained"
@@ -461,6 +516,7 @@ function FilterSection({
                         placeItems: 'center',
                         color: 'primary.main',
                         opacity: 0.78,
+
                         '& svg': {
                             fontSize: 16
                         }
@@ -619,7 +675,11 @@ function draftToQuery(
         ...new Set(
             draft.cusips
                 .split(',')
-                .map((cusip) => cusip.trim().toUpperCase())
+                .map((cusip) =>
+                    cusip
+                        .trim()
+                        .toUpperCase()
+                )
                 .filter(Boolean)
         )
     ];
@@ -663,7 +723,10 @@ function isInvalidRange(
     minValue: string,
     maxValue: string
 ): boolean {
-    if (minValue === '' || maxValue === '') {
+    if (
+        minValue === '' ||
+        maxValue === ''
+    ) {
         return false;
     }
 
@@ -675,12 +738,35 @@ function countActiveFilters(
 ): number {
     let count = 0;
 
-    if (draft.cusips.trim()) count += 1;
-    if (draft.id) count += 1;
-    if (draft.sides.length > 0) count += 1;
-    if (draft.productTypes.length > 0) count += 1;
-    if (draft.sizeMin || draft.sizeMax) count += 1;
-    if (draft.priceMin || draft.priceMax) count += 1;
+    if (draft.cusips.trim()) {
+        count += 1;
+    }
+
+    if (draft.id) {
+        count += 1;
+    }
+
+    if (draft.sides.length > 0) {
+        count += 1;
+    }
+
+    if (draft.productTypes.length > 0) {
+        count += 1;
+    }
+
+    if (
+        draft.sizeMin ||
+        draft.sizeMax
+    ) {
+        count += 1;
+    }
+
+    if (
+        draft.priceMin ||
+        draft.priceMax
+    ) {
+        count += 1;
+    }
 
     return count;
 }
