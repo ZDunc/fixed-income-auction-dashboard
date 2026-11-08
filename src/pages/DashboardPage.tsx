@@ -7,10 +7,12 @@ import { useTheme } from '@mui/material/styles';
 
 import AuctionGrid from '../components/AuctionGrid';
 import AuctionSummary from '../components/AuctionSummary';
+
 import {
     DashboardErrorState,
     DashboardRefreshError
 } from '../components/DashboardErrorStates';
+
 import FilterPanel from '../components/FilterPanel';
 import Header from '../components/Header';
 import { useAuctions } from '../hooks/useAuctions';
@@ -39,10 +41,14 @@ export default function DashboardPage() {
         isLoading && !hasLoaded;
 
     const hasInitialError =
-        !isLoading && !!error && !hasLoaded;
+        !isLoading &&
+        !!error &&
+        !hasLoaded;
 
     const hasRefreshError =
-        !isLoading && !!error && hasLoaded;
+        !isLoading &&
+        !!error &&
+        hasLoaded;
 
     const filterStatusText = isLoading
         ? 'Loading auctions...'
@@ -52,10 +58,15 @@ export default function DashboardPage() {
                 ? 'Showing previous results'
                 : undefined;
 
-    const hasAppliedFilters =
-        Object.keys(query).length > 0;
+    const activeFilterCount =
+        countAppliedFilters(query);
 
-    const handleDrawerApply = (nextQuery: AuctionQuery) => {
+    const hasAppliedFilters =
+        activeFilterCount > 0;
+
+    const handleDrawerApply = (
+        nextQuery: AuctionQuery
+    ) => {
         setQuery(nextQuery);
         setFiltersOpen(false);
     };
@@ -138,12 +149,18 @@ export default function DashboardPage() {
                             <AuctionGrid
                                 auctions={auctions}
                                 isLoading={isLoading}
-                                hasAppliedFilters={hasAppliedFilters}
+                                hasAppliedFilters={
+                                    hasAppliedFilters
+                                }
+                                activeFilterCount={
+                                    activeFilterCount
+                                }
                                 lastUpdated={lastUpdated}
                                 onOpenFilters={
                                     showPermanentFilters
                                         ? undefined
-                                        : () => setFiltersOpen(true)
+                                        : () =>
+                                            setFiltersOpen(true)
                                 }
                             />
                         </>
@@ -174,7 +191,9 @@ export default function DashboardPage() {
                 <Drawer
                     anchor="right"
                     open={filtersOpen}
-                    onClose={() => setFiltersOpen(false)}>
+                    onClose={() =>
+                        setFiltersOpen(false)
+                    }>
                     <Box
                         sx={{
                             width: {
@@ -184,8 +203,16 @@ export default function DashboardPage() {
                             height: '100%'
                         }}>
                         <FilterPanel
+                            key={
+                                filtersOpen
+                                    ? 'filters-open'
+                                    : 'filters-closed'
+                            }
                             query={query}
                             onApply={handleDrawerApply}
+                            onClose={() =>
+                                setFiltersOpen(false)
+                            }
                             resultCount={auctions.length}
                             isLoading={isLoading}
                             statusText={filterStatusText}
@@ -195,4 +222,42 @@ export default function DashboardPage() {
             )}
         </Box>
     );
+}
+
+function countAppliedFilters(
+    query: AuctionQuery
+): number {
+    let count = 0;
+
+    if (query.cusips?.length) {
+        count += 1;
+    }
+
+    if (query.id !== undefined) {
+        count += 1;
+    }
+
+    if (query.sides?.length) {
+        count += 1;
+    }
+
+    if (query.productTypes?.length) {
+        count += 1;
+    }
+
+    if (
+        query.sizeMin !== undefined ||
+        query.sizeMax !== undefined
+    ) {
+        count += 1;
+    }
+
+    if (
+        query.priceMin !== undefined ||
+        query.priceMax !== undefined
+    ) {
+        count += 1;
+    }
+
+    return count;
 }

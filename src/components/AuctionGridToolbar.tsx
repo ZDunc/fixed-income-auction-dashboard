@@ -13,14 +13,17 @@ import FilterAltOutlined from '@mui/icons-material/FilterAltOutlined';
 import SearchRounded from '@mui/icons-material/SearchRounded';
 import TableRowsOutlined from '@mui/icons-material/TableRowsOutlined';
 
-import { formatNumber, formatUpdatedTime } from '../utils/formatUtils';
-
+import {
+    formatNumber,
+    formatUpdatedTime
+} from '../utils/formatUtils';
 
 interface AuctionGridToolbarProps {
     totalCount: number;
     displayedCount: number;
     searchText: string;
     lastUpdated: number | null;
+    activeFilterCount: number;
     onSearchChange: (value: string) => void;
     onOpenFilters?: () => void;
 }
@@ -30,10 +33,17 @@ export default function AuctionGridToolbar({
     displayedCount,
     searchText,
     lastUpdated,
+    activeFilterCount,
     onSearchChange,
     onOpenFilters
 }: AuctionGridToolbarProps) {
     const hasSearch = searchText.trim().length > 0;
+    const hasAppliedFilters = activeFilterCount > 0;
+
+    const safeDisplayedCount =
+        Number.isFinite(displayedCount)
+            ? displayedCount
+            : totalCount;
 
     return (
         <Box
@@ -83,7 +93,7 @@ export default function AuctionGridToolbar({
 
                 {hasSearch && (
                     <Chip
-                        label={`${formatNumber(displayedCount)} of ${formatNumber(totalCount)}`}
+                        label={`${formatNumber(safeDisplayedCount)} of ${formatNumber(totalCount)}`}
                         size="small"
                         sx={{
                             height: 22,
@@ -133,9 +143,49 @@ export default function AuctionGridToolbar({
                         onClick={onOpenFilters}
                         sx={{
                             height: 34,
-                            whiteSpace: 'nowrap'
+                            px: {
+                                xs: 1.5,
+                                sm: 1.35
+                            },
+                            whiteSpace: 'nowrap',
+
+                            '& .MuiButton-startIcon': {
+                                ml: 0,
+                                mr: 0.75
+                            },
+
+                            ...(hasAppliedFilters && {
+                                bgcolor: 'action.selected',
+                                borderColor: 'primary.main',
+
+                                '&:hover': {
+                                    bgcolor: 'action.selected',
+                                    borderColor: 'primary.main'
+                                }
+                            })
                         }}>
                         Filters
+
+                        {hasAppliedFilters && (
+                            <Box
+                                component="span"
+                                sx={{
+                                    ml: 0.75,
+                                    minWidth: 18,
+                                    height: 18,
+                                    px: 0.45,
+                                    borderRadius: 9,
+                                    display: 'inline-grid',
+                                    placeItems: 'center',
+                                    bgcolor: 'primary.main',
+                                    color: 'primary.contrastText',
+                                    fontSize: '0.65rem',
+                                    fontWeight: 700,
+                                    lineHeight: 1
+                                }}>
+                                {activeFilterCount}
+                            </Box>
+                        )}
                     </Button>
                 )}
 
@@ -181,7 +231,9 @@ export default function AuctionGridToolbar({
                                         <Tooltip title="Clear search">
                                             <IconButton
                                                 size="small"
-                                                onClick={() => onSearchChange('')}
+                                                onClick={() =>
+                                                    onSearchChange('')
+                                                }
                                                 edge="end"
                                                 aria-label="Clear table search">
                                                 <ClearRounded
