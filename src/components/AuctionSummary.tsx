@@ -85,17 +85,33 @@ export default function AuctionSummary({
                 {/* top KPI row */}
                 <Box
                     sx={{
+                        position: 'relative',
                         display: 'grid',
                         gridTemplateColumns: {
                             xs: 'repeat(2, minmax(0, 1fr))',
                             md: 'repeat(4, minmax(0, 1fr))'
                         },
-                        rowGap: {
-                            xs: 1.25,
-                            md: 0
-                        },
+                        rowGap: 0,
                         px: 1.5,
-                        py: 1
+                        py: {
+                            xs: 0,
+                            md: 1
+                        },
+
+                        '&::after': {
+                            content: '""',
+                            display: {
+                                xs: 'block',
+                                md: 'none'
+                            },
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            top: '50%',
+                            height: '1px',
+                            bgcolor: 'divider',
+                            pointerEvents: 'none'
+                        }
                     }}>
                     <MetricSlot dividerOnXs>
                         {isLoading ? (
@@ -753,6 +769,10 @@ function MetricSlot({
                     xs: 1.25,
                     md: 2
                 },
+                py: {
+                    xs: 1.25,
+                    md: 0
+                },
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -768,8 +788,14 @@ function MetricSlot({
                         },
                         position: 'absolute',
                         right: 0,
-                        top: '10%',
-                        bottom: '10%',
+                        top: {
+                            xs: 0,
+                            md: '10%'
+                        },
+                        bottom: {
+                            xs: 0,
+                            md: '10%'
+                        },
                         width: '1px',
                         bgcolor: 'divider'
                     }
