@@ -18,6 +18,7 @@ import type { AuctionQuery } from '../interfaces/AuctionQuery';
 
 export default function DashboardPage() {
     const theme = useTheme();
+
     const showPermanentFilters = useMediaQuery(
         theme.breakpoints.up('lg')
     );
@@ -110,6 +111,10 @@ export default function DashboardPage() {
                                 xs: 'auto 520px',
                                 lg: 'auto minmax(0, 1fr)'
                             },
+                        alignContent: {
+                            xs: 'start',
+                            lg: 'stretch'
+                        },
                         gap: 2
                     }}>
                     {hasInitialError ? (
