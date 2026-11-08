@@ -1,4 +1,7 @@
-import { useMemo, useState } from 'react';
+import {
+    useMemo,
+    useState
+} from 'react';
 
 import {
     CellStyleModule,
@@ -6,21 +9,29 @@ import {
     PaginationModule,
     QuickFilterModule
 } from 'ag-grid-community';
+
 import type {
     ColDef,
     ICellRendererParams
 } from 'ag-grid-community';
+
 import { AgGridReact } from 'ag-grid-react';
 
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
-import { alpha, useTheme } from '@mui/material/styles';
+import {
+    alpha,
+    useTheme
+} from '@mui/material/styles';
+
 import type { Auction } from '../interfaces/Auction';
 import { auctionGridTheme } from '../theme/theme';
+
 import type {
     ProductType,
     Side
 } from '../types/AuctionTypes';
+
 import {
     formatNumber,
     formatPrice,
@@ -28,7 +39,6 @@ import {
 } from '../utils/formatUtils';
 
 import AuctionGridToolbar from './AuctionGridToolbar';
-
 
 ModuleRegistry.registerModules([
     PaginationModule,
@@ -40,6 +50,7 @@ interface AuctionGridProps {
     auctions: Auction[];
     isLoading?: boolean;
     hasAppliedFilters?: boolean;
+    activeFilterCount?: number;
     lastUpdated?: number | null;
     onOpenFilters?: () => void;
 }
@@ -48,12 +59,24 @@ export default function AuctionGrid({
     auctions,
     isLoading = false,
     hasAppliedFilters = false,
+    activeFilterCount = 0,
     lastUpdated = null,
     onOpenFilters
 }: AuctionGridProps) {
     const theme = useTheme();
     const [quickFilterText, setQuickFilterText] = useState('');
-    const [displayedCount, setDisplayedCount] = useState(auctions.length);
+
+    const displayedCount = useMemo(
+        () =>
+            getQuickFilterCount(
+                auctions,
+                quickFilterText
+            ),
+        [
+            auctions,
+            quickFilterText
+        ]
+    );
 
     const overlayComponentParams = useMemo(
         () => ({
@@ -62,6 +85,7 @@ export default function AuctionGrid({
                     ? 'No auctions match the applied filters. Try adjusting or clearing your filters.'
                     : 'No auctions are currently available.'
             },
+
             noMatchingRows: {
                 overlayText:
                     'No auctions match your search. Try a different search term.'
@@ -89,6 +113,7 @@ export default function AuctionGrid({
                 maxWidth: 90,
                 cellClass: 'tabular-numbers'
             },
+
             {
                 field: 'cusip',
                 headerName: 'CUSIP',
@@ -98,6 +123,7 @@ export default function AuctionGrid({
                     fontWeight: 600
                 }
             },
+
             {
                 field: 'side',
                 headerName: 'Side',
@@ -106,6 +132,7 @@ export default function AuctionGrid({
                 maxWidth: 105,
                 cellRenderer: SideCellRenderer
             },
+
             {
                 field: 'size',
                 headerName: 'Size',
@@ -120,6 +147,7 @@ export default function AuctionGrid({
                         : formatNumber(value),
                 cellClass: 'tabular-numbers'
             },
+
             {
                 field: 'productType',
                 headerName: 'Product Type',
@@ -127,46 +155,49 @@ export default function AuctionGrid({
                 minWidth: 125,
                 cellRenderer: ProductTypeCellRenderer
             },
-			{
-				field: 'price',
-				headerName: 'Price',
-				width: 105,
-				minWidth: 100,
-				maxWidth: 115,
-				comparator: (
-					valueA,
-					valueB,
-					_nodeA,
-					_nodeB,
-					isDescending
-				) =>
-					compareNullableNumbers(
-						valueA,
-						valueB,
-						isDescending
-					),
-				valueFormatter: ({ value }) =>
-    				formatPrice(value),
-				getQuickFilterText: ({ value }) =>
-					value == null
-						? ''
-						: formatPrice(value),
-				cellClass: 'tabular-numbers'
-			},
+
             {
-				field: 'curtainTimestamp',
-				headerName: 'Curtain',
-				flex: 1.2,
-				minWidth: 150,
-				initialSort: 'asc',
-				valueFormatter: ({ value }) =>
-					formatTimestamp(value),
-				getQuickFilterText: ({ value }) =>
-					value == null
-						? ''
-						: formatTimestamp(value),
-				cellClass: 'tabular-numbers'
-			},
+                field: 'price',
+                headerName: 'Price',
+                width: 105,
+                minWidth: 100,
+                maxWidth: 115,
+                comparator: (
+                    valueA,
+                    valueB,
+                    _nodeA,
+                    _nodeB,
+                    isDescending
+                ) =>
+                    compareNullableNumbers(
+                        valueA,
+                        valueB,
+                        isDescending
+                    ),
+                valueFormatter: ({ value }) =>
+                    formatPrice(value),
+                getQuickFilterText: ({ value }) =>
+                    value == null
+                        ? ''
+                        : formatPrice(value),
+                cellClass: 'tabular-numbers'
+            },
+
+            {
+                field: 'curtainTimestamp',
+                headerName: 'Curtain',
+                flex: 1.2,
+                minWidth: 150,
+                initialSort: 'asc',
+                valueFormatter: ({ value }) =>
+                    formatTimestamp(value),
+                getQuickFilterText: ({ value }) =>
+                    value == null
+                        ? ''
+                        : formatTimestamp(value),
+                cellClass: 'tabular-numbers'
+            },
+
             {
                 field: 'expirationTimestamp',
                 headerName: 'Expiration',
@@ -180,31 +211,32 @@ export default function AuctionGrid({
                         : formatTimestamp(value),
                 cellClass: 'tabular-numbers'
             },
-			{
-				field: 'conclusionTimestamp',
-				headerName: 'Conclusion',
-				flex: 1.2,
-				minWidth: 150,
-				comparator: (
-					valueA,
-					valueB,
-					_nodeA,
-					_nodeB,
-					isDescending
-				) =>
-					compareNullableNumbers(
-						valueA,
-						valueB,
-						isDescending
-					),
-				valueFormatter: ({ value }) =>
-    				formatTimestamp(value),
-				getQuickFilterText: ({ value }) =>
-					value == null
-						? ''
-						: formatTimestamp(value),
-				cellClass: 'tabular-numbers'
-			}
+
+            {
+                field: 'conclusionTimestamp',
+                headerName: 'Conclusion',
+                flex: 1.2,
+                minWidth: 150,
+                comparator: (
+                    valueA,
+                    valueB,
+                    _nodeA,
+                    _nodeB,
+                    isDescending
+                ) =>
+                    compareNullableNumbers(
+                        valueA,
+                        valueB,
+                        isDescending
+                    ),
+                valueFormatter: ({ value }) =>
+                    formatTimestamp(value),
+                getQuickFilterText: ({ value }) =>
+                    value == null
+                        ? ''
+                        : formatTimestamp(value),
+                cellClass: 'tabular-numbers'
+            }
         ],
         []
     );
@@ -226,13 +258,14 @@ export default function AuctionGrid({
                     '0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.05)'
             }}>
             <AuctionGridToolbar
-				totalCount={auctions.length}
-				displayedCount={displayedCount}
-				searchText={quickFilterText}
-				lastUpdated={lastUpdated}
-				onSearchChange={setQuickFilterText}
-				onOpenFilters={onOpenFilters}
-			/>
+                totalCount={auctions.length}
+                displayedCount={displayedCount}
+                searchText={quickFilterText}
+                lastUpdated={lastUpdated}
+                activeFilterCount={activeFilterCount}
+                onSearchChange={setQuickFilterText}
+                onOpenFilters={onOpenFilters}
+            />
 
             <Box
                 sx={{
@@ -271,8 +304,7 @@ export default function AuctionGrid({
                     columnDefs={columnDefs}
                     defaultColDef={defaultColDef}
                     loading={isLoading}
-					//cellSelection
-					enableCellTextSelection
+                    enableCellTextSelection
                     pagination
                     paginationPageSize={25}
                     paginationPageSizeSelector={[
@@ -282,16 +314,8 @@ export default function AuctionGrid({
                         100
                     ]}
                     quickFilterText={quickFilterText}
-                    overlayComponentParams={overlayComponentParams}
-                    onFilterChanged={(event) =>
-                        setDisplayedCount(
-                            event.api.getDisplayedRowCount()
-                        )
-                    }
-                    onModelUpdated={(event) =>
-                        setDisplayedCount(
-                            event.api.getDisplayedRowCount()
-                        )
+                    overlayComponentParams={
+                        overlayComponentParams
                     }
                 />
             </Box>
@@ -391,6 +415,64 @@ function UnknownChip() {
             }}
         />
     );
+}
+
+function getQuickFilterCount(
+    auctions: Auction[],
+    quickFilterText: string
+): number {
+    const searchTerms = quickFilterText
+        .trim()
+        .toLowerCase()
+        .split(/\s+/)
+        .filter(Boolean);
+
+    if (searchTerms.length === 0) {
+        return auctions.length;
+    }
+
+    return auctions.filter((auction) => {
+        const searchableText =
+            getAuctionSearchText(auction);
+
+        return searchTerms.every((term) =>
+            searchableText.includes(term)
+        );
+    }).length;
+}
+
+function getAuctionSearchText(
+    auction: Auction
+): string {
+    const side =
+        auction.side === 'Invalid'
+            ? 'Unknown'
+            : auction.side;
+
+    const productType =
+        auction.productType === 'Invalid'
+            ? 'Unknown'
+            : auction.productType;
+
+    return [
+        auction.id.toString(),
+        auction.cusip,
+        side,
+        formatNumber(auction.size),
+        productType,
+        formatPrice(auction.price),
+        formatTimestamp(
+            auction.curtainTimestamp
+        ),
+        formatTimestamp(
+            auction.expirationTimestamp
+        ),
+        formatTimestamp(
+            auction.conclusionTimestamp
+        )
+    ]
+        .join(' ')
+        .toLowerCase();
 }
 
 function compareNullableNumbers(
