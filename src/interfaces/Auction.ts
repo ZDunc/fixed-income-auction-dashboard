@@ -8,6 +8,6 @@ export interface Auction {
     curtainTimestamp: number;
     expirationTimestamp: number;
     conclusionTimestamp: number | null;
-    price: number;
+    price: number | null;
     productType: ProductType;
 }
