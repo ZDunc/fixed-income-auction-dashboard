@@ -2,6 +2,8 @@
 
 A responsive fixed income trading interface built with React and TypeScript for exploring and managing auction activity.
 
+**[View Live Demo](https://fixed-income-auction-dashboard-weld.vercel.app/)**
+
 I designed the application around a compact, data-dense workflow that makes it easy to understand the current auction landscape at a glance and then drill into individual opportunities. The interface combines aggregate auction analytics with a sortable, searchable, and paginated data grid, while a shared filtering workflow keeps the summary and underlying auction data in sync.
 
 The frontend architecture keeps application state and component coordination at the page level, isolates data access in a service layer, encapsulates fetching behavior in a custom hook, and keeps reusable calculations and formatting outside of UI components. The interface also includes responsive layouts, time-aware auction lifecycle states, loading and error handling, and a shared visual system across Material UI and AG Grid.
