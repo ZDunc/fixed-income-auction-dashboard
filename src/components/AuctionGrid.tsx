@@ -15,7 +15,6 @@ import { AgGridReact } from 'ag-grid-react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import { alpha, useTheme } from '@mui/material/styles';
-
 import type { Auction } from '../interfaces/Auction';
 import { auctionGridTheme } from '../theme/theme';
 import type {
@@ -52,6 +51,7 @@ export default function AuctionGrid({
     lastUpdated = null,
     onOpenFilters
 }: AuctionGridProps) {
+    const theme = useTheme();
     const [quickFilterText, setQuickFilterText] = useState('');
     const [displayedCount, setDisplayedCount] = useState(auctions.length);
 
@@ -236,13 +236,34 @@ export default function AuctionGrid({
 
             <Box
                 sx={{
+                    position: 'relative',
                     flex: 1,
                     minHeight: 0,
                     minWidth: 0,
                     width: '100%',
                     overflow: 'hidden',
                     borderTop: 1,
-                    borderColor: 'divider'
+                    borderColor: 'divider',
+
+                    '&::after': {
+                        content: '""',
+                        display: {
+                            xs: 'block',
+                            md: 'none'
+                        },
+                        position: 'absolute',
+                        zIndex: 5,
+                        top: 0,
+                        right: 0,
+                        bottom: '48px',
+                        width: 24,
+                        pointerEvents: 'none',
+                        background: `linear-gradient(
+                            to right,
+                            ${alpha(theme.palette.background.paper, 0)},
+                            ${alpha(theme.palette.background.paper, 0.92)}
+                        )`
+                    }
                 }}>
                 <AgGridReact<Auction>
                     theme={auctionGridTheme}
