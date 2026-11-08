@@ -30,10 +30,10 @@ export const appColors = {
     },
 
     dataViz: {
-        bid: '#2563EB',
-        offer: '#14B8A6',
-        corporate: '#6B5CCB',
-        municipal: '#B5658A',
+        bid: '#2F9E5B',
+        offer: '#C9735C',
+        corporate: '#7A6FC2',
+        municipal: '#6C91A8',
         upcoming: '#3B82F6',
         active: '#16A34A',
         concluded: '#7A8699',
@@ -112,7 +112,6 @@ export const theme = createTheme({
 
     typography: {
         fontFamily,
-
         button: {
             fontWeight: 600,
             textTransform: 'none'
@@ -146,7 +145,6 @@ export const theme = createTheme({
 
                 contained: {
                     boxShadow: 'none',
-
                     '&:hover': {
                         boxShadow: 'none'
                     }
@@ -230,7 +228,6 @@ export const auctionGridTheme = themeQuartz.withParams({
     backgroundColor: appColors.surface.paper,
     foregroundColor: appColors.text.primary,
     borderColor: appColors.surface.border,
-
     chromeBackgroundColor: appColors.surface.gridChrome,
     headerBackgroundColor: appColors.surface.gridHeader,
     headerTextColor: appColors.text.primary,

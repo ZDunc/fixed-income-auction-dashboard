@@ -326,7 +326,7 @@ function SideCellRenderer({
             sx={{
                 height: 21,
                 color,
-                bgcolor: alpha(color, 0.11),
+                bgcolor: alpha(color, 0.10),
                 borderRadius: 1.5,
                 fontSize: '0.72rem',
                 fontWeight: 700
