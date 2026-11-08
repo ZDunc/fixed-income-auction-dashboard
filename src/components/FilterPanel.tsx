@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 
 import AttachMoneyRounded from '@mui/icons-material/AttachMoneyRounded';
 import CategoryOutlined from '@mui/icons-material/CategoryOutlined';
@@ -24,7 +24,6 @@ import Typography from '@mui/material/Typography';
 import type { AuctionQuery } from '../interfaces/AuctionQuery';
 import type { ProductType, Side } from '../types/AuctionTypes';
 import { formatNumber } from '../utils/formatUtils';
-import { useSearchParams } from 'react-router-dom';
 
 interface FilterPanelProps {
     query: AuctionQuery;
@@ -63,8 +62,6 @@ export default function FilterPanel({
     statusText,
     isLoading = false
 }: FilterPanelProps) {
-    //const [searchParams] = useSearchParams();
-    
     const [draft, setDraft] = useState<FilterDraft>(
         () => queryToDraft(query)
     );
